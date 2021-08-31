@@ -130,6 +130,7 @@ namespace aprs {
         WxSym wxSym;
         char wxFlag;
         std::size_t digits;
+        std::string_view dbName;
         std::string_view prefix;
         std::string_view suffix;
         Units units;
@@ -139,19 +140,19 @@ namespace aprs {
 
     static constexpr std::array<WeatherItem, 13>
             WeatherItemList{{
-                                    {WxSym::WindDirection, 'c', 3, "Dir", "", Units::Degrees, 1., 0},
-                                    {WxSym::WindSpeed, 's', 3, "Wind", "", Units::MPH, 1., 0},
-                                    {WxSym::WindGust, 'g', 3, "Gust", "", Units::MPH, 1., 0},
-                                    {WxSym::Temperature, 't', 3, "Temp", "", Units::Fahrenheit, 1., 0},
-                                    {WxSym::Humidity,'h', 2, "Humid", "", Units::Percent, 1., 0},
-                                    {WxSym::RainHour, 'r', 3, "Rain", "/hour", Units::inch_100, 100, 2},
-                                    {WxSym::RainDay, 'p', 3, "Rain", "/day", Units::inch_100, 100., 2},
-                                    {WxSym::RainMidnight, 'P', 3, "Rain", "since midniht", Units::inch_100, 100., 2},
-                                    {WxSym::Pressure, 'b', 5, "BP", "", Units::hPa, 10., 1},
-                                    {WxSym::Luminosity, 'L', 3, "Lumin", "", Units::wPSqm, 1., 0},
-                                    {WxSym::DewPoint, '\n', 0, "Dew Point", "", Units::Celsius, 1., 0},
-                                    {WxSym::Humidex, '\n', 0, "Humidex", "", Units::Celsius, 1., 0},
-                                    {WxSym::Luminosity, 'l', 3, "Lumin", "", Units::wPSqm, 1., 0}
+                                    {WxSym::WindDirection, 'c', 3,"WDir", "Dir", "", Units::Degrees, 1., 0},
+                                    {WxSym::WindSpeed, 's', 3, "WSpeed", "Wind", "", Units::MPH, 1., 0},
+                                    {WxSym::WindGust, 'g', 3, "WGust", "Gust", "", Units::MPH, 1., 0},
+                                    {WxSym::Temperature, 't', 3,"Temp", "Temp", "", Units::Fahrenheit, 1., 0},
+                                    {WxSym::Humidity,'h', 2,"RelHum", "Humid", "", Units::Percent, 1., 0},
+                                    {WxSym::RainHour, 'r', 3,"RHour", "Rain", "/hour", Units::inch_100, 100, 2},
+                                    {WxSym::RainDay, 'p', 3,"RDay", "Rain", "/day", Units::inch_100, 100., 2},
+                                    {WxSym::RainMidnight, 'P', 3,"RainMid", "Rain", "since midniht", Units::inch_100, 100., 2},
+                                    {WxSym::Pressure, 'b', 5,"BarroP", "BP", "", Units::hPa, 10., 1},
+                                    {WxSym::Luminosity, 'L', 3,"Lumin", "Lumin", "", Units::wPSqm, 1., 0},
+                                    {WxSym::DewPoint, '\n', 0,"DewPt", "Dew Point", "", Units::Celsius, 1., 0},
+                                    {WxSym::Humidex, '\n', 0,"Humidex", "Humidex", "", Units::Celsius, 1., 0},
+                                    {WxSym::Luminosity, 'l', 3,"Lumin", "Lumin", "", Units::wPSqm, 1., 0}
                             }};
 
     static constexpr std::size_t WeatherItemCount = WeatherItemList.size();

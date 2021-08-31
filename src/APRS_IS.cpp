@@ -56,6 +56,7 @@ namespace aprs {
             getPacket();
             if (mGoodServer = !prefix("# javAPRSSrvr 4.3.0b22") &&
                               !prefix("# javAPRSSrvr 4.3.0b17") &&
+//                              !prefix("# javAPRSSrvr 3.15b08") &&
                               !prefix("# javAPRSSrvr 4.2.0b09"); !mGoodServer) {
                 cerr << "Reject " << mPeerName << " version " << mPacket;
                 close();
