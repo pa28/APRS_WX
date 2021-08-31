@@ -20,20 +20,6 @@ namespace aprs {
 
     class WeatherAggregator : public std::map<std::string, std::unique_ptr<APRS_WX_Report>> {
     protected:
-        enum class WxSym {
-            WindDirection,
-            WindSpeed,
-            WindGust,
-            Temperature,
-            Humidity,
-            RainHour,
-            RainDay,
-            RainMidnight,
-            Snow,
-            Pressure,
-            Luminosity,
-        };
-
         static constexpr std::size_t WeatherParam = 12;
 
         std::array<std::optional<double>, WeatherParam> mValueAggregate{};

@@ -61,10 +61,10 @@ namespace aprs {
                     case WxSym::RainMidnight:
                         value = report.second->mRainMidnight;
                         break;
-                    case WxSym::Snow:
-                        if (report.second->mSnow.has_value())
-                            value = static_cast<double>(report.second->mSnow.value());
-                        break;
+//                    case WxSym::Snow:
+//                        if (report.second->mSnow.has_value())
+//                            value = static_cast<double>(report.second->mSnow.value());
+//                        break;
                     case WxSym::Pressure:
                         value = report.second->mBarometricPressure;
                         break;
@@ -122,10 +122,10 @@ namespace aprs {
                     if (mValueAggregate[idx].has_value())
                         cout << "\tRainMidnight: ";
                     break;
-                case WxSym::Snow:
-                    if (mValueAggregate[idx].has_value())
-                        cout << "\tSnow:         ";
-                    break;
+//                case WxSym::Snow:
+//                    if (mValueAggregate[idx].has_value())
+//                        cout << "\tSnow:         ";
+//                    break;
                 case WxSym::Pressure:
                     if (mValueAggregate[idx].has_value())
                         cout << "\tB Pressure:   ";

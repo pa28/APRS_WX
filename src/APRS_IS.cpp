@@ -5,6 +5,7 @@
  * @date 2021-08-30
  */
 
+#include <algorithm>
 #include "APRS_IS.h"
 
 namespace aprs {
@@ -144,12 +145,13 @@ namespace aprs {
 
                     wxReport->mSymCode = decodeCharAtIndex();
 
-                    wxReport->mWindDir = decodeValue<long>(3);
+                    wxReport->decodeWeatherValue(*this, WxSym::WindDirection);
                     ++p0;
-                    wxReport->mWindSpeed = decodeValue<double>(3, 0.44704);
+                    wxReport->decodeWeatherValue(*this, WxSym::WindSpeed);
 
                     bool inWx = true;
                     while (inWx && p0 < mPacket.length()) {
+#if 0
                         switch (decodeCharAtIndex()) {
                             case 'c':
                                 wxReport->mWindDir = decodeValue<long>(3);
@@ -191,6 +193,27 @@ namespace aprs {
                             default:
                                 inWx = false;
                         }
+#else
+                        auto flag = decodeCharAtIndex();
+                        try {
+                            if (auto found = std::find(WeatherItemList.begin(), WeatherItemList.end(),
+                                                       [&flag](const auto &item) {
+                                                           return item.wx_flag == flag;
+                                                       }); found != WeatherItemList.end()) {
+                                wxReport->decodeWeatherValue(*this, found->wxSym);
+                            } else {
+                                std::string msg{"Unknown weather item flag '"};
+                                msg.push_back(flag);
+                                msg.push_back('\'');
+                                throw WeatherValueError(msg);
+                            }
+                        } catch (const WeatherValueError &weatherValueError) {
+                            cerr << "Weather value decoding error: " << weatherValueError.what()
+                                 << " Index: " << p0 << '\n'
+                                 << '\t' << mPacket << '\n';
+                            inWx = false;
+                        }
+#endif
                     }
                     --p0;
 

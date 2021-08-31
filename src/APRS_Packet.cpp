@@ -84,5 +84,14 @@ namespace aprs {
         strm << setprecision(0) << defaultfloat;
         return strm;
     }
+
+    void APRS_WX_Report::decodeWeatherValue(APRS_IS &aprs_is, WxSym wxSym) {
+        auto idx = static_cast<std::size_t>(wxSym);
+        auto value = aprs_is.decodeValue<double>(WeatherItemList[idx].digits);
+        if (value.has_value())
+            mWeatherValue[idx] = value;
+        else
+            throw WeatherValueError(__PRETTY_FUNCTION__);
+    }
 }
 

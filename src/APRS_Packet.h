@@ -14,6 +14,8 @@
 #include <cstring>
 #include <chrono>
 #include <optional>
+#include <stdexcept>
+#include "APRS_IS.h"
 
 namespace aprs {
     /// Convert radians to degrees.
@@ -96,11 +98,69 @@ namespace aprs {
         std::ostream &printOn(std::ostream &strm) const override;
     };
 
+    enum class WxSym {
+        WindDirection,
+        WindSpeed,
+        WindGust,
+        Temperature,
+        Humidity,
+        RainHour,
+        RainDay,
+        RainMidnight,
+        Pressure,
+        Luminosity,
+        LuminosityPlus,
+    };
+
+    enum class Units {
+        Degrees,
+        MPH,
+        KPH,
+        mPs,
+        Fahrenheit,
+        Celsius,
+        inch_100,
+        mm,
+        Percent,
+        hPa,
+        wPSqm
+    };
+
+    struct WeatherItem {
+        WxSym wxSym;
+        char wxFlag;
+        std::size_t digits;
+        std::string_view prefix;
+        std::string_view suffix;
+        Units units;
+    };
+
+    static constexpr std::array<WeatherItem, 11>
+            WeatherItemList{{
+                                    {WxSym::WindDirection, 'c', 3, "Dir", "", Units::Degrees},
+                                    {WxSym::WindSpeed, 's', 3, "Wind", "", Units::MPH},
+                                    {WxSym::WindGust, 'g', 3, "Gust", "", Units::MPH},
+                                    {WxSym::Temperature, 't', 3, "Temp", "", Units::Fahrenheit},
+                                    {WxSym::Humidity,'h', 2, "Humid", "", Units::Percent},
+                                    {WxSym::RainHour, 'r', 3, "Rain", "/hour", Units::inch_100},
+                                    {WxSym::RainDay, 'p', 3, "Rain", "/day", Units::inch_100},
+                                    {WxSym::RainMidnight, 'P', 3, "Rain", "since midniht", Units::inch_100},
+                                    {WxSym::Pressure, 'b', 5, "BP", "", Units::hPa},
+                                    {WxSym::Luminosity, 'l', 3, "Lumin", "", Units::wPSqm},
+                                    {WxSym::LuminosityPlus, 'L', 3, "Lumin", "", Units::wPSqm}
+                            }};
+
+    class WeatherValueError : public std::runtime_error {
+    public:
+        explicit WeatherValueError(const std::string& what_arg) : std::runtime_error(what_arg) {}
+    };
+
     class APRS_WX_Report : public APRS_Position {
     public:
         std::string mDateTime{};
-        std::optional<long> mWindDir, mHumidity, mLuminosity, mSnow;
-        std::optional<double> mWindSpeed, mTemperature, mWindGust, mRainHour, mRainDay, mRainMidnight, mBarometricPressure;
+        std::array<std::optional<double>,11> mWeatherValue;
+
+        void decodeWeatherValue(APRS_IS &aprs_is, WxSym);
 
         std::ostream &printOn(std::ostream &strm) const override;
 
