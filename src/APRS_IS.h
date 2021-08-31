@@ -11,10 +11,8 @@
 #include "APRS_Packet.h"
 
 namespace aprs {
-    using namespace std;
-    using namespace sockets;
 
-    class APRS_IS : public local_socket {
+    class APRS_IS : public sockets::local_socket {
     public:
         std::string mPacket{};
         std::string mCallSign{};
@@ -94,7 +92,7 @@ namespace aprs {
         auto putLine(const std::string &line) {
             auto n = write(fd(), line.data(), line.length());
             if (n != line.length())
-                cerr << "Only " << n << " of " << line.length() << " chars written.\n";
+                std::cerr << "Only " << n << " of " << line.length() << " chars written.\n";
             return n;
         }
 
@@ -104,7 +102,7 @@ namespace aprs {
         [[nodiscard]] std::optional<T> decodeValue(const std::size_t len, const T factor = 1.) {
             std::optional<T> value = safeConvert<T>(mPacket.substr(p0, len));
             if (value.has_value())
-                value = value.value() * factor;
+                value = value.value() / factor;
             p0 += len;
             return value;
         }

@@ -5,6 +5,7 @@
  * @date 2021-08-30
  */
 
+#include "APRS_IS.h"
 #include "APRS_Packet.h"
 
 namespace aprs {
@@ -57,41 +58,30 @@ namespace aprs {
 
     std::ostream &APRS_WX_Report::printOn(ostream &strm) const {
         APRS_Position::printOn(strm);
+
         strm << "\n\t" << fixed;
-        if (mWindDir.has_value() && mWindSpeed.has_value())
-            strm << setprecision(1) << mWindSpeed.value() << " m/s @ " << setprecision(0) << mWindDir.value()
-                 << " deg ";
-        if (mWindGust.has_value())
-            strm << "Gust " << setprecision(1) << mWindGust.value() << " m/s ";
-        if (mTemperature.has_value())
-            strm << "Temp " << mTemperature.value() << "C ";
-        if (mHumidity.has_value())
-            strm << "Humidity " << mHumidity.value() << "% ";
-        if (mRainDay.has_value() || mRainHour.has_value() || mRainMidnight.has_value())
-            strm << "Rain ";
-        if (mRainHour.has_value())
-            strm << mRainHour.value() << " mm/hr ";
-        if (mRainDay.has_value())
-            strm << mRainDay.value() << " mm/day ";
-        if (mRainMidnight.has_value())
-            strm << mRainMidnight.value() << " mm since midnight ";
-        if (mSnow.has_value())
-            strm << "Snow " << mSnow.has_value() << " cm. ";
-        if (mBarometricPressure.has_value())
-            strm << "Bp " << mBarometricPressure.value() << " hPa ";
-        if (mLuminosity.has_value())
-            strm << "Lumi " << mLuminosity.value() << " W/sqm ";
+        for (auto &item : WeatherItemList) {
+            // Ignore item for input of high value luminosity.
+            if (item.wxFlag != 'l') {
+                auto idx = static_cast<std::size_t>(item.wxSym);
+                if (mWeatherValue[idx].has_value())
+                    strm << item.prefix << ' ' << setprecision(item.precision) << mWeatherValue[idx].value() << ' '
+                         << item.suffix << ' ';
+            }
+        }
         strm << setprecision(0) << defaultfloat;
         return strm;
     }
 
-    void APRS_WX_Report::decodeWeatherValue(APRS_IS &aprs_is, WxSym wxSym) {
+    void APRS_WX_Report::decodeWeatherValue(APRS_IS &aprs_is, WxSym wxSym, char valueFlag, double factor) {
         auto idx = static_cast<std::size_t>(wxSym);
-        auto value = aprs_is.decodeValue<double>(WeatherItemList[idx].digits);
-        if (value.has_value())
+        auto value = aprs_is.decodeValue<double>(WeatherItemList[idx].digits, factor);
+        if (value.has_value()) {
             mWeatherValue[idx] = value;
-        else
-            throw WeatherValueError(__PRETTY_FUNCTION__);
+            // Implement high luminosity range.
+            if (valueFlag == 'l')
+                mWeatherValue[idx].value() += 1000;
+        }
     }
 }
 

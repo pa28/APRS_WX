@@ -8,6 +8,8 @@
 #include <algorithm>
 #include "APRS_IS.h"
 
+using namespace std;
+
 namespace aprs {
 
     APRS_IS::APRS_IS(const std::string &callsign, const std::string &passCode, const std::string &filter) :
@@ -196,16 +198,12 @@ namespace aprs {
 #else
                         auto flag = decodeCharAtIndex();
                         try {
-                            if (auto found = std::find(WeatherItemList.begin(), WeatherItemList.end(),
-                                                       [&flag](const auto &item) {
-                                                           return item.wx_flag == flag;
-                                                       }); found != WeatherItemList.end()) {
-                                wxReport->decodeWeatherValue(*this, found->wxSym);
+                            if (auto found = find_if(WeatherItemList.begin(), WeatherItemList.end(), [flag](auto item){
+                                    return item.wxFlag == flag;
+                            } ); found != WeatherItemList.end()) {
+                                wxReport->decodeWeatherValue(*this, found->wxSym, flag, found->factor);
                             } else {
-                                std::string msg{"Unknown weather item flag '"};
-                                msg.push_back(flag);
-                                msg.push_back('\'');
-                                throw WeatherValueError(msg);
+                                inWx = false;
                             }
                         } catch (const WeatherValueError &weatherValueError) {
                             cerr << "Weather value decoding error: " << weatherValueError.what()

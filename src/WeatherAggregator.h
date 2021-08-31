@@ -20,12 +20,15 @@ namespace aprs {
 
     class WeatherAggregator : public std::map<std::string, std::unique_ptr<APRS_WX_Report>> {
     protected:
-        static constexpr std::size_t WeatherParam = 12;
 
-        std::array<std::optional<double>, WeatherParam> mValueAggregate{};
-        std::array<std::optional<double>, WeatherParam> mHannAggregate{};
+        std::array<std::optional<double>, WeatherItemCount> mValueAggregate{};
+        std::array<std::optional<double>, WeatherItemCount> mHannAggregate{};
 
         void clearAggregateData();
+
+        double FahrenheitToCelsius(double fahrenheit) {
+            return (fahrenheit - 32.) * (5./9.);
+        }
 
     public:
 
