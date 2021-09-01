@@ -12,6 +12,7 @@
 #include <ios>
 #include <cmath>
 #include <cstring>
+#include <charconv>
 #include <chrono>
 #include <optional>
 #include <stdexcept>
@@ -31,30 +32,40 @@ namespace aprs {
 
     template<typename T>
     std::optional<T> safeConvert(const std::string &str) {
-        static constexpr std::size_t BufferSize = 64;
-
-        if (str.empty())
-            return std::nullopt;
-
-        if (str.length() > BufferSize - 1)
-            throw std::range_error("String to long to convert.");
-
-        char *endPtr{nullptr};
-        char buffer[BufferSize];
-        std::memset(buffer, 0, BufferSize);
-        std::strncpy(buffer, str.c_str(), str.length());
+        std::string_view stringView{str};
         if constexpr (std::is_same_v<T, long>) {
-            std::optional<T> value = std::strtol(buffer, &endPtr, 10);
-            if (endPtr - buffer < str.length())
-                value = std::nullopt;
-            return value;
-        } else if constexpr (std::is_same_v<T, double>) {
-            std::optional<T> value = std::strtod(buffer, &endPtr);
-            if (endPtr - buffer < str.length())
-                value = std::nullopt;
-            return value;
+            T value;
+            auto[ptr, ec] = std::from_chars(stringView.data(), stringView.data() + stringView.length(), value);
+            if (ec == std::errc())
+                return value;
+            else
+                return std::nullopt;
         } else {
-            static_assert(std::is_same_v<T, long> || std::is_same_v<T, double>, "Type not supported.");
+            static constexpr std::size_t BufferSize = 64;
+
+            if (str.empty())
+                return std::nullopt;
+
+            if (str.length() > BufferSize - 1)
+                throw std::range_error("String to long to convert.");
+
+            char *endPtr{nullptr};
+            char buffer[BufferSize];
+            std::memset(buffer, 0, BufferSize);
+            std::strncpy(buffer, str.c_str(), str.length());
+            if constexpr (std::is_same_v<T, long>) {
+                std::optional<T> value = std::strtol(buffer, &endPtr, 10);
+                if (endPtr - buffer < str.length())
+                    value = std::nullopt;
+                return value;
+            } else if constexpr (std::is_same_v<T, double>) {
+                std::optional<T> value = std::strtod(buffer, &endPtr);
+                if (endPtr - buffer < str.length())
+                    value = std::nullopt;
+                return value;
+            } else {
+                static_assert(std::is_same_v<T, long> || std::is_same_v<T, double>, "Type not supported.");
+            }
         }
     }
 
