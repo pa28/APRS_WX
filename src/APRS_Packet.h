@@ -32,19 +32,23 @@ namespace aprs {
 
     template<typename T>
     std::optional<T> safeConvert(const std::string &str) {
-        std::string_view stringView{str};
-        if constexpr (std::is_same_v<T, long>) {
+        static_assert(std::is_integral_v<T> || std::is_floating_point_v<T>, "Type not supported.");
+
+        if (str.empty())
+            return std::nullopt;
+
+        if constexpr (std::is_integral_v<T>) {
+            // Use simpler (and safer?) std::from_chars() for integers because if is available.
+            std::string_view stringView{str};
             T value;
             auto[ptr, ec] = std::from_chars(stringView.data(), stringView.data() + stringView.length(), value);
-            if (ec == std::errc())
+            if (ec == std::errc() && ptr == stringView.data() + stringView.length())
                 return value;
             else
                 return std::nullopt;
-        } else {
+        } else if constexpr (std::is_floating_point_v<T>) {
+            // Use more cumbersome std::strtod() for doubles.
             static constexpr std::size_t BufferSize = 64;
-
-            if (str.empty())
-                return std::nullopt;
 
             if (str.length() > BufferSize - 1)
                 throw std::range_error("String to long to convert.");
@@ -53,19 +57,10 @@ namespace aprs {
             char buffer[BufferSize];
             std::memset(buffer, 0, BufferSize);
             std::strncpy(buffer, str.c_str(), str.length());
-            if constexpr (std::is_same_v<T, long>) {
-                std::optional<T> value = std::strtol(buffer, &endPtr, 10);
-                if (endPtr - buffer < str.length())
-                    value = std::nullopt;
-                return value;
-            } else if constexpr (std::is_same_v<T, double>) {
-                std::optional<T> value = std::strtod(buffer, &endPtr);
-                if (endPtr - buffer < str.length())
-                    value = std::nullopt;
-                return value;
-            } else {
-                static_assert(std::is_same_v<T, long> || std::is_same_v<T, double>, "Type not supported.");
-            }
+            std::optional<T> value = std::strtod(buffer, &endPtr);
+            if (endPtr - buffer < str.length())
+                value = std::nullopt;
+            return value;
         }
     }
 
