@@ -8,6 +8,7 @@
 #include <vector>
 #include <algorithm>
 #include <cmath>
+#include <csignal>
 #include "src/APRS_Packet.h"
 #include "src/APRS_IS.h"
 #include "src/WeatherAggregator.h"
@@ -52,12 +53,13 @@ private:
     std::vector<std::string> tokens;
 };
 
-
 std::string CallsignOption{"--call"};
 std::string PassCodeOption{"--pass"};
 std::string LatitudeOption{"--lat"};
 std::string LongitudeOption{"--lon"};
 std::string RadiusOption{"--radius"};
+
+static std::atomic_bool run{true};
 
 void usage(const std::string &app) {
     cout << "Usage: " << app
@@ -68,6 +70,15 @@ void usage(const std::string &app) {
 using namespace std;
 using namespace aprs;
 
+void signalHandler(int signum) {
+    cout << "Interrupt signal (" << signum << ") received.\n";
+
+    // cleanup and close up stuff here
+    // terminate program
+
+    run = false;
+}
+
 int main(int argc, char **argv) {
     InputParser inputParser{argc, argv};
     std::string callsign{};
@@ -76,6 +87,10 @@ int main(int argc, char **argv) {
     std::optional<double> qthLatitude{};
     std::optional<double> qthLongitude{};
     std::optional<long> filterRadius{};
+
+    std::signal(SIGINT, signalHandler);
+    std::signal(SIGTERM, signalHandler);
+    std::signal(SIGHUP, signalHandler);
 
     WeatherAggregator weatherAggregator{};
 
@@ -101,8 +116,6 @@ int main(int argc, char **argv) {
     } else
         usage(argv[0]);
 
-
-    atomic_bool run = true;
     std::cout << "Hello, CWOP APRS-IS!" << '\n'
               << callsign << ' ' << passCode << ' ' << filter << '\n';
 
@@ -112,22 +125,24 @@ int main(int argc, char **argv) {
     sock.mRadius = filterRadius;
 
     if (sock.openConnection()) {
-
         while (run) {
             sock.getPacket();
-            if (!sock.prefix("# aprsc")) {
-                if (sock.charAtIndex() != '#') {
-                    auto packet = sock.decode();
-                    switch (packet->status()) {
-                        case PacketStatus::WxPacket: {
-                            packet->printOn(cout) << '\n';
-                            auto wx = std::unique_ptr<APRS_WX_Report>(dynamic_cast<APRS_WX_Report *>(packet.release()));
-                            weatherAggregator[wx->mName] = std::move(wx);
-                            weatherAggregator.aggregateData();
+            if (!sock.mPacket.empty()) {
+                if (!sock.prefix("# aprsc")) {
+                    if (sock.charAtIndex() != '#') {
+                        auto packet = sock.decode();
+                        switch (packet->status()) {
+                            case PacketStatus::WxPacket: {
+                                packet->printOn(cout) << '\n';
+                                auto wx = std::unique_ptr<APRS_WX_Report>(
+                                        dynamic_cast<APRS_WX_Report *>(packet.release()));
+                                weatherAggregator[wx->mName] = std::move(wx);
+                                weatherAggregator.aggregateData();
+                            }
+                                break;
+                            default:
+                                break;
                         }
-                            break;
-                        default:
-                            break;
                     }
                 }
             }

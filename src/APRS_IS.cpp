@@ -35,7 +35,8 @@ namespace aprs {
                 }
             } else if (n != 0) {
                 cerr << "Select: " << n << '\n';
-                exit(1);
+                mPacket.clear();
+                return mPacket;
             }
         }
 
