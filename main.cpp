@@ -138,6 +138,7 @@ int main(int argc, char **argv) {
                                         dynamic_cast<APRS_WX_Report *>(packet.release()));
                                 weatherAggregator[wx->mName] = std::move(wx);
                                 weatherAggregator.aggregateData();
+                                weatherAggregator.pushToInflux("pidp11.local", 8086, "aprs_wx");
                             }
                                 break;
                             default:

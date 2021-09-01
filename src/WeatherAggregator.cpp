@@ -5,6 +5,10 @@
  * @date 2021-08-30
  */
 
+#include <curlpp/cURLpp.hpp>
+#include <curlpp/Easy.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/Exception.hpp>
 #include "APRS_Packet.h"
 #include "WeatherAggregator.h"
 
@@ -27,11 +31,44 @@ namespace aprs {
         }
     }
 
+    std::ostream &WeatherAggregator::printInfluxFormat(ostream &strm, const std::string &prefix) const {
+        std::optional<double> temperature{}, relHumidity{};
+        for (auto &item : WeatherItemList) {
+            if (item.wxFlag != 'l') {
+                auto idx = static_cast<std::size_t>(item.wxSym);
+                if (mValueAggregate[idx].has_value()) {
+                    auto value = mValueAggregate[idx].value() / mHannAggregate[idx].value();
+                    if (item.wxSym == WxSym::Temperature)
+                        temperature = value;
+                    if (item.wxSym == WxSym::Humidity)
+                        relHumidity = value;
+                    if (item.units == Units::Fahrenheit)
+                        value = FahrenheitToCelsius(value);
+                    else if (item.units == Units::inch_100)
+                        value = value * 25.4;
+                    else if (item.units == Units::MPH)
+                        value = value * 1.60934;
+                    strm << prefix << item.dbName << '=' << value << '\n';
+                }
+            }
+        }
+
+        if (temperature.has_value() && relHumidity.has_value()) {
+            auto celsius = FahrenheitToCelsius(temperature.value());
+            auto dewPoint = celsius - ((100. - relHumidity.value()) / 5.);
+            auto e = 6.11 * exp(5417.7530 * ((1. / 273.16) - (1. / (dewPoint + 273.15))));
+            auto h = 0.5555 * (e - 10.0);
+            auto humidex = celsius + h;
+            strm << prefix << "DewPt=" << dewPoint << '\n';
+            strm << prefix << "Humidex=" << humidex << '\n';
+        }
+
+        return strm;
+    }
+
     void WeatherAggregator::aggregateData() {
         clearAggregateData();
 
-
-        cout << "\tAgregate from " << size() << " stations.\n";
         for (const auto &report : (*this)) {
             auto hann = report.second->mHannValue.value();
             for (auto &item : WeatherItemList) {
@@ -50,77 +87,52 @@ namespace aprs {
                 }
             }
         }
-
-#if 0
-        std::optional<double> temperature{}, relHumidity{};
-        for (auto &item : WeatherItemList) {
-            if (item.wxFlag != 'l') {
-                auto idx = static_cast<std::size_t>(item.wxSym);
-                if (mValueAggregate[idx].has_value()) {
-                    auto value = mValueAggregate[idx].value() / mHannAggregate[idx].value();
-                    if (item.wxSym == WxSym::Temperature)
-                        temperature = value;
-                    if (item.wxSym == WxSym::Humidity)
-                        relHumidity = value;
-                    if (item.units == Units::Fahrenheit)
-                        value = FahrenheitToCelsius(value);
-                    else if (item.units == Units::inch_100)
-                        value = value * 25.4;
-                    else if (item.units == Units::MPH)
-                        value = value * 1.60934;
-                    std::cout << '\t' << std::setw(9) << item.prefix << ": "
-                              << fixed << setprecision(item.precision) << value
-                              << ' ' << item.suffix << '\n';
-                }
-            }
-        }
-
-        if (temperature.has_value() && relHumidity.has_value()) {
-            auto celsius = FahrenheitToCelsius(temperature.value());
-            auto dewPoint = celsius - ((100. - relHumidity.value()) / 5.);
-            auto e = 6.11 * exp(5417.7530 * ((1. / 273.16) - (1. / (dewPoint + 273.15))));
-            auto h = 0.5555 * (e - 10.0);
-            auto humidex = celsius + h;
-            cout << setprecision(0)
-                 << '\t' << setw(11) << "Dew Point: " << dewPoint << '\n'
-                 << '\t' << setw(11) << "Humidex: " << humidex << '\n';
-        }
-#else
+//
+//        cout << "\tAgregate from " << size() << " stations.\n";
+//        for (const auto &item : WeatherItemList) {
+//            auto idx = static_cast<std::size_t>(item.wxSym);
+//            if (item.wxFlag != 'l' && mValueAggregate[idx].has_value())
+//                cout << '\t' << item.dbName << ": " << mValueAggregate[idx].value() / mHannAggregate[idx].value() << '\n';
+//        }
+//
         cout.unsetf(ios::fixed | ios::scientific);
         cout << setprecision(6);
+    }
 
-        std::string prefix = "aprs_wx,aggregate ";
+    bool WeatherAggregator::pushToInflux(const string &host, unsigned int port, const std::string &dataBase) {
+        std::stringstream buildUrl{};
+        std::stringstream postField{};
 
-        std::optional<double> temperature{}, relHumidity{};
-        for (auto &item : WeatherItemList) {
-            if (item.wxFlag != 'l') {
-                auto idx = static_cast<std::size_t>(item.wxSym);
-                if (mValueAggregate[idx].has_value()) {
-                    auto value = mValueAggregate[idx].value() / mHannAggregate[idx].value();
-                    if (item.wxSym == WxSym::Temperature)
-                        temperature = value;
-                    if (item.wxSym == WxSym::Humidity)
-                        relHumidity = value;
-                    if (item.units == Units::Fahrenheit)
-                        value = FahrenheitToCelsius(value);
-                    else if (item.units == Units::inch_100)
-                        value = value * 25.4;
-                    else if (item.units == Units::MPH)
-                        value = value * 1.60934;
-                    cout << prefix << item.dbName << '=' << value << '\n';
-                }
+        buildUrl << "http://" << host << ':' << port << "/write?db=" << dataBase;
+//        std::cerr << "CurlPP URL: " << buildUrl.str() << '\n';
+
+        printInfluxFormat(postField, "aggregate,call=VE3YSH ");
+//        std::cerr << postField.str() << '\n';
+        auto postData = postField.str();
+
+        if (!postData.empty())
+            try {
+                cURLpp::Cleanup cleaner;
+                cURLpp::Easy request;
+                request.setOpt(new cURLpp::Options::Url(buildUrl.str()));
+                request.setOpt(new curlpp::options::Verbose(false));
+
+                std::list<std::string> header;
+                header.emplace_back("Content-Type: application/octet-stream");
+                request.setOpt(new curlpp::options::HttpHeader(header));
+
+                request.setOpt(new curlpp::options::PostFieldSize(postData.length()));
+                request.setOpt(new curlpp::options::PostFields(postData));
+
+                request.perform();
+            } catch (curlpp::LogicError &e) {
+                std::cout << e.what() << std::endl;
+                return false;
+            } catch (curlpp::RuntimeError &e) {
+                std::cout << e.what() << std::endl;
+                return false;
             }
-        }
 
-        if (temperature.has_value() && relHumidity.has_value()) {
-            auto celsius = FahrenheitToCelsius(temperature.value());
-            auto dewPoint = celsius - ((100. - relHumidity.value()) / 5.);
-            auto e = 6.11 * exp(5417.7530 * ((1. / 273.16) - (1. / (dewPoint + 273.15))));
-            auto h = 0.5555 * (e - 10.0);
-            auto humidex = celsius + h;
-            cout << prefix << "DewPt=" << dewPoint << '\n';
-            cout << prefix << "Humidex=" << humidex << '\n';
-        }
-#endif
+        return true;
     }
 }
