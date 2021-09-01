@@ -32,12 +32,16 @@ namespace aprs {
     template<typename T>
     std::optional<T> safeConvert(const std::string &str) {
         static constexpr std::size_t BufferSize = 64;
+
         if (str.empty())
             return std::nullopt;
+
         if (str.length() > BufferSize - 1)
             throw std::range_error("String to long to convert.");
-        char buffer[BufferSize];
+
         char *endPtr{nullptr};
+        char buffer[BufferSize];
+        std::memset(buffer, 0, BufferSize);
         std::strncpy(buffer, str.c_str(), str.length());
         if constexpr (std::is_same_v<T, long>) {
             std::optional<T> value = std::strtol(buffer, &endPtr, 10);
