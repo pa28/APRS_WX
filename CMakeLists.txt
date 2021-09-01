@@ -4,13 +4,22 @@ project(APRS_WX VERSION 0.1.0.1)
 
 set(CMAKE_CXX_STANDARD 17)
 
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" "${CMAKE_MODULE_PATH}")
+find_package(CURLPP REQUIRED)
+include_directories(${CURLPP_INCLUDE_DIR})
+
 add_executable(
         APRS_WX
         main.cpp
         src/APRS_Packet.cpp
         src/APRS_IS.cpp
         src/WeatherAggregator.cpp
-        )
+)
+
+target_link_libraries(
+        APRS_WX
+        ${CURLPP_LIBRARIES}
+)
 
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
