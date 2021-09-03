@@ -9,6 +9,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <functional>
 #include <utility>
 #include <charconv>
 #include <cstring>
