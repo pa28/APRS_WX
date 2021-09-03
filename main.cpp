@@ -9,6 +9,9 @@
 #include <algorithm>
 #include <cmath>
 #include <csignal>
+#include <cstring>
+#include "src/XDGFilePaths.h"
+#include "src/ConfigFile.h"
 #include "src/APRS_Packet.h"
 #include "src/APRS_IS.h"
 #include "src/WeatherAggregator.h"
@@ -53,12 +56,6 @@ private:
     std::vector<std::string> tokens;
 };
 
-std::string CallsignOption{"--call"};
-std::string PassCodeOption{"--pass"};
-std::string LatitudeOption{"--lat"};
-std::string LongitudeOption{"--lon"};
-std::string RadiusOption{"--radius"};
-
 static std::atomic_bool run{true};
 
 void usage(const std::string &app) {
@@ -80,6 +77,28 @@ void signalHandler(int signum) {
 }
 
 int main(int argc, char **argv) {
+    static constexpr std::string_view ConfigOption = "--config";
+
+    enum class ConfigItem {
+        Callsign,
+        Passcode,
+        Latitude,
+        Longitude,
+        Radius,
+    };
+
+    std::vector<ConfigFile::Spec> ConfigSpec
+            {{
+                     {"callsign", static_cast<std::size_t>(ConfigItem::Callsign)},
+                     {"passcode", static_cast<std::size_t>(ConfigItem::Passcode)},
+                     {"latitude", static_cast<std::size_t>(ConfigItem::Latitude)},
+                     {"longitude", static_cast<std::size_t>(ConfigItem::Longitude)},
+                     {"radius", static_cast<std::size_t>(ConfigItem::Radius)},
+             }};
+
+    xdg::Environment &environment{xdg::Environment::getEnvironment()};
+    filesystem::path configFilePath = environment.appResourcesAppend("config.txt");
+
     InputParser inputParser{argc, argv};
     std::string callsign{};
     std::string passCode{};
@@ -94,27 +113,30 @@ int main(int argc, char **argv) {
 
     WeatherAggregator weatherAggregator{};
 
-    if (inputParser.cmdOptionExists(CallsignOption))
-        callsign = inputParser.getCmdOption(CallsignOption);
-    else
-        usage(argv[0]);
+    if (inputParser.cmdOptionExists(ConfigOption))
+        configFilePath = std::filesystem::path{inputParser.getCmdOption(ConfigOption)};
 
-    if (inputParser.cmdOptionExists(PassCodeOption))
-        passCode = inputParser.getCmdOption(PassCodeOption);
-    else
-        usage(argv[0]);
-
-    if (inputParser.cmdOptionExists(LatitudeOption) && inputParser.cmdOptionExists(LongitudeOption) &&
-        inputParser.cmdOptionExists(RadiusOption)) {
-        qthLatitude = safeConvert<double>(inputParser.getCmdOption(LatitudeOption));
-        qthLongitude = safeConvert<double>(inputParser.getCmdOption(LongitudeOption));
-        filterRadius = safeConvert<long>(inputParser.getCmdOption(RadiusOption));
-        std::stringstream strm{};
-        strm << "r/" << inputParser.getCmdOption(LatitudeOption) << '/' << inputParser.getCmdOption(LongitudeOption)
-             << '/' << filterRadius.value();
-        filter = strm.str();
-    } else
-        usage(argv[0]);
+    ConfigFile configFile{configFilePath};
+    if (auto status = configFile.open(); status == ConfigFile::OK) {
+        configFile.process(ConfigSpec, [](std::size_t idx, const std::string_view& data){
+            // ToDo: Implement item type decoding.
+            switch (static_cast<ConfigItem>(idx)) {
+                case ConfigItem::Callsign:
+                case ConfigItem::Passcode:
+                case ConfigItem::Latitude:
+                case ConfigItem::Longitude:
+                case ConfigItem::Radius:
+                    cout << idx << ": '" << data << "'\n";
+            }
+        });
+        configFile.close();
+    } else if (status == ConfigFile::NO_FILE) {
+        cerr << "Configuation file specified " << configFilePath << " does not exist.\n";
+        exit(1);
+    } else if (status == ConfigFile::OPEN_FAIL) {
+        cerr << "Could not open configuration file " << configFilePath << ": " << std::strerror(errno) << '\n';
+        exit(1);
+    }
 
     std::cout << "Hello, CWOP APRS-IS!" << '\n'
               << callsign << ' ' << passCode << ' ' << filter << '\n';

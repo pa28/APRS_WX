@@ -14,7 +14,8 @@ add_executable(
         src/APRS_Packet.cpp
         src/APRS_IS.cpp
         src/WeatherAggregator.cpp
-)
+        src/ConfigFile.cpp
+        src/XDGFilePaths.cpp)
 
 target_link_libraries(
         APRS_WX
