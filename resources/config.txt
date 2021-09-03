@@ -1,0 +1,26 @@
+#
+# Configuration file for APRS_WX Weather Agregator
+#
+# Set to the callsign, required for validation, SSID optional.
+callsign N0CALL-9
+# Set the passcode associated with the callsign, required for validation. If you do not know your passcode, or
+# how to generate it contact the software provider.
+passcode 12345
+# QTH Latitude South negative
+latitude 12.3456
+# QTH Longitude West negative
+longitude -123.4567
+# APR_IS filter radius in km
+radius 50
+#
+# InfluxDB parameters
+#
+# To use https set this to 1
+influxTLS 0
+# The database server host name
+influxHost example.com
+# The database connection poort
+influxPort 8086
+# The database name to store measuerments.
+influxDb aprs_wx
+
