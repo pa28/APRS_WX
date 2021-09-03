@@ -85,27 +85,40 @@ int main(int argc, char **argv) {
         Latitude,
         Longitude,
         Radius,
+        InfluxTLS,
+        InfluxHost,
+        InfluxPort,
+        InfluxDb,
     };
 
     std::vector<ConfigFile::Spec> ConfigSpec
             {{
-                     {"callsign", static_cast<std::size_t>(ConfigItem::Callsign)},
-                     {"passcode", static_cast<std::size_t>(ConfigItem::Passcode)},
-                     {"latitude", static_cast<std::size_t>(ConfigItem::Latitude)},
-                     {"longitude", static_cast<std::size_t>(ConfigItem::Longitude)},
-                     {"radius", static_cast<std::size_t>(ConfigItem::Radius)},
+                     {"callsign", ConfigItem::Callsign},
+                     {"passcode", ConfigItem::Passcode},
+                     {"latitude", ConfigItem::Latitude},
+                     {"longitude", ConfigItem::Longitude},
+                     {"radius", ConfigItem::Radius},
+                     {"influxTLS", ConfigItem::InfluxTLS},
+                     {"influxHost", ConfigItem::InfluxHost},
+                     {"influxPort", ConfigItem::InfluxPort},
+                     {"influxDb", ConfigItem::InfluxDb}
              }};
 
     xdg::Environment &environment{xdg::Environment::getEnvironment()};
     filesystem::path configFilePath = environment.appResourcesAppend("config.txt");
 
     InputParser inputParser{argc, argv};
-    std::string callsign{};
-    std::string passCode{};
+    std::optional<std::string> callsign{};
+    std::optional<std::string> passCode{};
     std::string filter{};
     std::optional<double> qthLatitude{};
     std::optional<double> qthLongitude{};
     std::optional<long> filterRadius{};
+
+    bool influxTls{false};
+    std::optional<std::string> influxHost{};
+    std::optional<long> influxPort{};
+    std::optional<std::string> influxDb{};
 
     std::signal(SIGINT, signalHandler);
     std::signal(SIGTERM, signalHandler);
@@ -118,38 +131,132 @@ int main(int argc, char **argv) {
 
     ConfigFile configFile{configFilePath};
     if (auto status = configFile.open(); status == ConfigFile::OK) {
-        configFile.process(ConfigSpec, [](std::size_t idx, const std::string_view& data){
+        bool validFile{true};
+        configFile.process(ConfigSpec, [&](std::size_t idx, const std::string_view &data)
+        {
             // ToDo: Implement item type decoding.
+            bool validValue{false};
             switch (static_cast<ConfigItem>(idx)) {
                 case ConfigItem::Callsign:
+                    callsign = ConfigFile::parseText(data, [](char c) {
+                        return ConfigFile::isalnum(c) || c == '-';
+                    }, ConfigFile::toupper);
+                    validValue = callsign.has_value();
+                    break;
                 case ConfigItem::Passcode:
+                    passCode = ConfigFile::parseText(data, ConfigFile::isdigit);
+                    validValue = passCode.has_value();
+                    break;
+                    break;
                 case ConfigItem::Latitude:
+                    qthLatitude = configFile.safeConvert<double>(data);
+                    validValue = qthLatitude.has_value();
+                    break;
                 case ConfigItem::Longitude:
+                    qthLongitude = configFile.safeConvert<double>(data);
+                    validValue = qthLongitude.has_value();
+                    break;
                 case ConfigItem::Radius:
-                    cout << idx << ": '" << data << "'\n";
+                    filterRadius = configFile.safeConvert<long>(data);
+                    validValue = filterRadius.has_value();
+                    break;
+                case ConfigItem::InfluxTLS: {
+                    std::optional<long> value = configFile.safeConvert<long>(data);
+                    validValue = value.has_value();
+                    if (validValue)
+                        influxTls = value.value() != 0;
+                }
+                    break;
+                case ConfigItem::InfluxHost:
+                    influxHost = ConfigFile::parseText(data, [](char c) {
+                        return ConfigFile::isalnum(c) || c == '.';
+                    });
+                    validValue = influxHost.has_value();
+                    break;
+                case ConfigItem::InfluxPort:
+                    influxPort = configFile.safeConvert<long>(data);
+                    validValue = influxPort.has_value() && influxPort.value() > 0;
+                    break;
+                case ConfigItem::InfluxDb:
+                    influxDb = ConfigFile::parseText(data, [](char c) {
+                        return ConfigFile::isalnum(c) || c == '_';
+                    });
+                    validValue = influxDb.has_value();
+                    break;
+            }
+            validFile = validFile & validValue;
+            if (!validValue) {
+                std::cerr << "Invalid config value: " << ConfigSpec[idx].mKey << '\n';
             }
         });
         configFile.close();
+        if (!validFile) {
+            std::cerr << "Invalid configuration file " << configFilePath << " exiting.\n";
+        }
+
+        if (!(influxHost.has_value() && influxPort.has_value() && influxDb.has_value()))
+            std::cerr << "Influx database not specified in " << configFilePath << ", data will not be stored.\n";
     } else if (status == ConfigFile::NO_FILE) {
-        cerr << "Configuation file specified " << configFilePath << " does not exist.\n";
+        cerr << "Configuration file specified " << configFilePath << " does not exist.\n";
         exit(1);
     } else if (status == ConfigFile::OPEN_FAIL) {
-        cerr << "Could not open configuration file " << configFilePath << ": " << std::strerror(errno) << '\n';
+        cerr << "Could not open configuration file " << configFilePath << ": " <<
+
+             std::strerror(errno)
+
+             << '\n';
         exit(1);
     }
 
+    std::stringstream filterStrm{};
+    filterStrm << "r/" << qthLatitude.
+
+            value()
+
+               << '/' << qthLongitude.
+
+            value()
+
+               << '/' << filterRadius.
+
+            value();
+
+    filter = filterStrm.str();
+
     std::cout << "Hello, CWOP APRS-IS!" << '\n'
-              << callsign << ' ' << passCode << ' ' << filter << '\n';
+              << callsign.
 
-    APRS_IS sock{callsign, passCode, filter};
-    sock.mQthPosition.mLat = qthLatitude;
-    sock.mQthPosition.mLon = qthLongitude;
-    sock.mRadius = filterRadius;
+                      value()
 
-    if (sock.openConnection()) {
+              << ' ' << passCode.
+
+            value()
+
+              << ' ' << filter << '\n';
+
+    APRS_IS sock{callsign.value(), passCode.value(), filter};
+    sock.mQthPosition.
+            mLat = qthLatitude;
+    sock.mQthPosition.
+            mLon = qthLongitude;
+    sock.
+            mRadius = filterRadius;
+
+    if (sock.
+
+            openConnection()
+
+            ) {
         while (run) {
-            sock.getPacket();
-            if (!sock.mPacket.empty()) {
+            sock.
+
+                    getPacket();
+
+            if (!sock.mPacket.
+
+                    empty()
+
+                    ) {
                 if (!sock.prefix("# aprsc")) {
                     if (sock.charAtIndex() != '#') {
                         auto packet = sock.decode();
@@ -160,7 +267,8 @@ int main(int argc, char **argv) {
                                         dynamic_cast<APRS_WX_Report *>(packet.release()));
                                 weatherAggregator[wx->mName] = std::move(wx);
                                 weatherAggregator.aggregateData();
-                                weatherAggregator.pushToInflux("pidp11.local", 8086, "aprs_wx");
+                                if (influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
+                                    weatherAggregator.pushToInflux(influxHost.value(), influxTls, influxPort.value(), influxDb.value());
                             }
                                 break;
                             default:

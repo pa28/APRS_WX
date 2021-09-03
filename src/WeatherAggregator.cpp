@@ -99,11 +99,11 @@ namespace aprs {
         cout << setprecision(6);
     }
 
-    bool WeatherAggregator::pushToInflux(const string &host, unsigned int port, const std::string &dataBase) {
+    bool WeatherAggregator::pushToInflux(const string &host, bool tls, unsigned int port, const std::string &dataBase) {
         std::stringstream buildUrl{};
         std::stringstream postField{};
 
-        buildUrl << "http://" << host << ':' << port << "/write?db=" << dataBase;
+        buildUrl << (tls? "https" : "http") << "://" << host << ':' << port << "/write?db=" << dataBase;
 //        std::cerr << "CurlPP URL: " << buildUrl.str() << '\n';
 
         printInfluxFormat(postField, "aggregate,call=VE3YSH ");

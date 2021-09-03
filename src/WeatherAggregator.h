@@ -29,7 +29,7 @@ namespace aprs {
         std::ostream &printInfluxFormat(ostream &strm, const std::string &prefix) const;
 
     public:
-        bool pushToInflux(const string &host, unsigned int port, const std::string& dataBase);
+        bool pushToInflux(const string &host, bool tls, unsigned int port, const std::string &dataBase);
 
         static double FahrenheitToCelsius(double fahrenheit) {
             return (fahrenheit - 32.) * (5./9.);
