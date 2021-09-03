@@ -68,7 +68,7 @@ using namespace std;
 using namespace aprs;
 
 void signalHandler(int signum) {
-    cout << "Interrupt signal (" << signum << ") received.\n";
+    cerr << "Interrupt signal (" << signum << ") received.\n";
 
     // cleanup and close up stuff here
     // terminate program
@@ -223,15 +223,8 @@ int main(int argc, char **argv) {
 
     filter = filterStrm.str();
 
-    std::cout << "Hello, CWOP APRS-IS!" << '\n'
-              << callsign.
-
-                      value()
-
-              << ' ' << passCode.
-
-            value()
-
+    std::cerr << "Hello, CWOP APRS-IS!" << '\n'
+              << callsign.value()
               << ' ' << filter << '\n';
 
     APRS_IS sock{callsign.value(), passCode.value(), filter};
@@ -262,7 +255,6 @@ int main(int argc, char **argv) {
                         auto packet = sock.decode();
                         switch (packet->status()) {
                             case PacketStatus::WxPacket: {
-                                packet->printOn(cout) << '\n';
                                 auto wx = std::unique_ptr<APRS_WX_Report>(
                                         dynamic_cast<APRS_WX_Report *>(packet.release()));
                                 weatherAggregator[wx->mName] = std::move(wx);

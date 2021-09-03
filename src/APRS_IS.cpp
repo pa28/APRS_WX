@@ -72,10 +72,9 @@ namespace aprs {
             validate << " filter " << mFilter;
         validate << "\r\n";
 
-        cout << validate.str();
         putLine(validate.str());
         getPacket();
-        cout << mPacket;
+        cerr << mPacket;
         return true;
     }
 

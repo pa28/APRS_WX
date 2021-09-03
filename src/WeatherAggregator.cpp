@@ -87,14 +87,7 @@ namespace aprs {
                 }
             }
         }
-//
-//        cout << "\tAgregate from " << size() << " stations.\n";
-//        for (const auto &item : WeatherItemList) {
-//            auto idx = static_cast<std::size_t>(item.wxSym);
-//            if (item.wxFlag != 'l' && mValueAggregate[idx].has_value())
-//                cout << '\t' << item.dbName << ": " << mValueAggregate[idx].value() / mHannAggregate[idx].value() << '\n';
-//        }
-//
+
         cout.unsetf(ios::fixed | ios::scientific);
         cout << setprecision(6);
     }
@@ -126,10 +119,10 @@ namespace aprs {
 
                 request.perform();
             } catch (curlpp::LogicError &e) {
-                std::cout << e.what() << std::endl;
+                std::cerr << e.what() << std::endl;
                 return false;
             } catch (curlpp::RuntimeError &e) {
-                std::cout << e.what() << std::endl;
+                std::cerr << e.what() << std::endl;
                 return false;
             }
 

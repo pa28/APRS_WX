@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.1.0.1)
+project(APRS_WX VERSION 0.1.0.2)
+set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
+include(GNUInstallDirs)
 
 set(CMAKE_CXX_STANDARD 17)
 
@@ -26,6 +28,13 @@ target_link_libraries(
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         )
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/config.txt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/resources"
+        )
+
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/aprs_wx.service"
+        DESTINATION /etc/systemd/system)
 
 set(CPACK_DEB_COMPONENT_INSTALL 1)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS 1)

@@ -42,7 +42,6 @@ namespace xdg {
         }
     }
 
-
     std::filesystem::path Environment::getenv_path(XDGFilePaths::XDG_Name name, const std::string &appName, bool create) {
         auto [found,path] = mFilePaths.findFilePath(name, appName);
         if (!found && create) {
