@@ -19,6 +19,7 @@ add_executable(
 
 target_link_libraries(
         APRS_WX
+        stdc++fs
         ${CURLPP_LIBRARIES}
 )
 
