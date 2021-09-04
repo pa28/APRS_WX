@@ -7,9 +7,9 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=10
-User=root
-Group=root
-ExecStart=/usr/local/bin/computer_monitor
+User=daemon
+Group=daemon
+ExecStart=/usr/local/bin/sys_monitor
 
 [Install]
 WantedBy=multi-user.target
