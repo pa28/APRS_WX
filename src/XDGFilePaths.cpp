@@ -50,17 +50,20 @@ namespace xdg {
         return path;
     }
 
-    Environment::Environment() {
-        mHomeDirectory = std::string{getenv("HOME")};
+    Environment::Environment(bool daemonMode) {
+        if (!daemonMode)
+            mHomeDirectory = std::string{getenv("HOME")};
         std::filesystem::path procExec{"/proc"};
         procExec.append("self").append("exe");
 
         if (std::filesystem::is_symlink(procExec)) {
             mAppName = std::filesystem::read_symlink(procExec).filename().string();
 
-            mDataHome = getenv_path(XDGFilePaths::XDG_DATA_HOME, mAppName, true);
-            mConfigHome = getenv_path(XDGFilePaths::XDG_CONFIG_HOME, mAppName, true);
-            mCacheHome = getenv_path(XDGFilePaths::XDG_CACHE_HOME, mAppName, true);
+            if (!daemonMode) {
+                mDataHome = getenv_path(XDGFilePaths::XDG_DATA_HOME, mAppName, true);
+                mConfigHome = getenv_path(XDGFilePaths::XDG_CONFIG_HOME, mAppName, true);
+                mCacheHome = getenv_path(XDGFilePaths::XDG_CACHE_HOME, mAppName, true);
+            }
             mAppResources = getenv_path(XDGFilePaths::XDG_DATA_DIRS, mAppName + "/resources", false);
             mLibResources = getenv_path(XDGFilePaths::XDG_DATA_DIRS, "Rose/resources", false);
         } else {

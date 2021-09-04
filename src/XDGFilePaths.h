@@ -105,12 +105,12 @@ namespace xdg {
 
     class Environment {
     protected:
-        Environment();
+        explicit Environment(bool daemonMode);
 
-        std::filesystem::path mHomeDirectory;       ///< The user's home directory path
-        std::filesystem::path mDataHome;            ///< The user's XDG Data Home path
-        std::filesystem::path mConfigHome;          ///< The user's XDG Config Home path
-        std::filesystem::path mCacheHome;           ///< The user's XDG Cache Home path
+        std::filesystem::path mHomeDirectory{};     ///< The user's home directory path
+        std::filesystem::path mDataHome{};          ///< The user's XDG Data Home path
+        std::filesystem::path mConfigHome{};        ///< The user's XDG Config Home path
+        std::filesystem::path mCacheHome{};         ///< The user's XDG Cache Home path
         std::filesystem::path mAppResources;        ///< Resources installed with the application.
 
         /**
@@ -134,8 +134,8 @@ namespace xdg {
 
         Environment& operator=(Environment &&) = delete;
 
-        static Environment &getEnvironment() {
-            static Environment instance{};
+        static Environment &getEnvironment(bool daemonMode = false) {
+            static Environment instance{daemonMode};
             return instance;
         }
 
