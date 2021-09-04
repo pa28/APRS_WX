@@ -1,0 +1,4 @@
+#!/bin/bash
+echo "APRS_WX post install."
+systemctl daemon-reload
+chown -R daemon:daemon /etc/APRS_WX

@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.1.2.4)
+project(APRS_WX VERSION 0.1.6.4)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 
@@ -30,8 +30,9 @@ install(TARGETS APRS_WX
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/config.txt"
-        DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/resources"
+install(FILES "resources/aprs_wx/config.txt"
+        DESTINATION "/etc/${PROJECT_NAME}"
+        PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
