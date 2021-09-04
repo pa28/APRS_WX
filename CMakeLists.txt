@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.1.1.2)
+project(APRS_WX VERSION 0.1.2.4)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 
@@ -12,7 +12,7 @@ include_directories(${CURLPP_INCLUDE_DIR})
 
 add_executable(
         APRS_WX
-        main.cpp
+        src/aprs_wx.cpp
         src/APRS_Packet.cpp
         src/APRS_IS.cpp
         src/WeatherAggregator.cpp
@@ -27,14 +27,18 @@ target_link_libraries(
 
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
+        COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/config.txt"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/resources"
+        COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/aprs_wx.service"
-        DESTINATION /etc/systemd/system)
+        DESTINATION /etc/systemd/system
+        COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
+        )
 
 set(CPACK_DEB_COMPONENT_INSTALL 1)
 set(CPACK_DEBIAN_ENABLE_COMPONENT_DEPENDS 1)
@@ -43,9 +47,9 @@ set(CPACK_PACKAGE_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${P
 set(CPACK_PACKAGE_RELEASE ${PROJECT_VERSION_TWEAK})
 set(CPACK_GENERATOR "DEB")
 set(CPACK_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_DEBIAN_HAMCLOCK_SYSTEMD_PACKAGE_NAME "${PROJECT_NAME}")
+set(CPACK_DEBIAN_APRS_WX_SYSTEMD_PACKAGE_NAME "${PROJECT_NAME}")
 set(CPACK_DEBIAN_PACKAGE_SECTION "hamradio")
-set(CPACK_RPM_PACKAGE_URL "https://github.com/pa28/")
+set(CPACK_RPM_PACKAGE_URL "https://github.com/pa28/aprs_wx")
 set(CPACK_RPM_PACKAGE_SUMMARY "CWOP Weather packet aggregator.")
 set(CPACK_RPM_PACKAGE_DESCRIPTION "CWOP Weather packet aggregator.")
 set(CPACK_RPM_PACKAGE_VENDOR "www.hrbuckley.net")
@@ -53,8 +57,8 @@ set(CPACK_PACKAGE_CONTACT "Richard Buckley")
 set(CPACK_RPM_PACKAGE_GROUP "Applications/Productivity")
 set(CPACK_DEBIAN_PACKAGE_SHLIBDEPS ON)
 set(CPACK_PACKAGING_INSTALL_PREFIX ${CMAKE_INSTALL_PREFIX})
-set(CPACK_PACKAGE_HAMCLOCK_SYSTEMD_EXECUTABLES SourceCode/ESPHamClock/hamclock-fb0-800x480)
-set(CPACK_PACKAGE_HAMCLOCK_EXECUTABLES SourceCode/ESPHamClock/hamclock-800x480)
+set(CPACK_PACKAGE_APRS_WX_SYSTEMD_EXECUTABLES APRS_WX)
+#set(CPACK_PACKAGE_HAMCLOCK_EXECUTABLES SourceCode/ESPHamClock/hamclock-800x480)
 set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
         /usr/local
         /usr/local/bin
@@ -66,3 +70,8 @@ set(CPACK_RPM_EXCLUDE_FROM_AUTO_FILELIST_ADDITION
 SET(CPACK_DEBIAN_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/postinst")
 
 include(CPack)
+
+cpack_add_component(APRS_WX_SYSTEMD
+        DISPLAY_NAME "aprs_wx"
+        DESCRIPTION "CWOP Weather packet aggregator."
+        )

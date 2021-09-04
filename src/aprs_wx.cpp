@@ -10,11 +10,11 @@
 #include <cmath>
 #include <csignal>
 #include <cstring>
-#include "src/XDGFilePaths.h"
-#include "src/ConfigFile.h"
-#include "src/APRS_Packet.h"
-#include "src/APRS_IS.h"
-#include "src/WeatherAggregator.h"
+#include "XDGFilePaths.h"
+#include "ConfigFile.h"
+#include "APRS_Packet.h"
+#include "APRS_IS.h"
+#include "WeatherAggregator.h"
 
 using namespace std;
 using namespace sockets;
