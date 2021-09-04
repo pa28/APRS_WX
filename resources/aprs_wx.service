@@ -7,8 +7,8 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=10
-User=nobody
-Group=nogroup
+User=root
+Group=root
 ExecStart=/usr/local/bin/APRS_WX
 
 [Install]
