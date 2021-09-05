@@ -24,7 +24,8 @@ namespace aprs {
 
         for (auto it = begin(); it != end();) {
             std::chrono::duration<double> diff = now - it->second->mTimePoint;
-            if (diff.count() > 3600.)
+            // Delete any weather reports more than 90 minutes old.
+            if (diff.count() > 5400.)
                 it = erase(it);
             else
                 ++it;
