@@ -106,7 +106,7 @@ int main(int argc, char **argv) {
 
     try {
         xdg::Environment &environment{xdg::Environment::getEnvironment(true)};
-        filesystem::path configFilePath{"/etc/APRS_WX/config.txt"};
+        filesystem::path configFilePath = environment.appResourcesAppend("config.txt");
 
         InputParser inputParser{argc, argv};
         std::optional<std::string> callsign{};
@@ -222,28 +222,15 @@ int main(int argc, char **argv) {
                   << ' ' << filter << '\n';
 
         APRS_IS sock{callsign.value(), passCode.value(), filter};
-        sock.mQthPosition.
-                mLat = qthLatitude;
-        sock.mQthPosition.
-                mLon = qthLongitude;
-        sock.
-                mRadius = filterRadius;
+        sock.mQthPosition.mLat = qthLatitude;
+        sock.mQthPosition.mLon = qthLongitude;
+        sock.mRadius = filterRadius;
 
-        if (sock.
-
-                openConnection()
-
-                ) {
+        if (sock.openConnection()) {
             while (run) {
-                sock.
+                sock.getPacket();
 
-                        getPacket();
-
-                if (!sock.mPacket.
-
-                        empty()
-
-                        ) {
+                if (!sock.mPacket.empty()) {
                     if (!sock.prefix("# aprsc")) {
                         if (sock.charAtIndex() != '#') {
                             auto packet = sock.decode();
@@ -268,7 +255,7 @@ int main(int argc, char **argv) {
         }
 
         sock.close();
-    } catch (exception& e) {
+    } catch (exception &e) {
         cerr << e.what() << '\n';
     }
 

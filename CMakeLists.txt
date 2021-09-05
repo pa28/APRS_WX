@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.1.6.4)
+project(APRS_WX VERSION 0.1.9.0)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 
@@ -9,6 +9,10 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" "${CMAKE_MODULE_PATH}")
 find_package(CURLPP REQUIRED)
 include_directories(${CURLPP_INCLUDE_DIR})
+
+set(DAEMON_USER "daemon")
+set(DAEMON_GROUP "daemon")
+set(APRS_WX_CONFIG_DIR "${CMAKE_INSTALL_DATA}")
 
 add_executable(
         APRS_WX
@@ -25,18 +29,30 @@ target_link_libraries(
         ${CURLPP_LIBRARIES}
 )
 
+# conffiles
+configure_file("resources/aprs_wx/conffiles.in" "resources/aprs_wx/conffiles"
+        NEWLINE_STYLE UNIX)
+
+# Configure the systemctl service file.
+configure_file("resources/aprs_wx/aprs_wx.service.in" "resources/aprs_wx/aprs_wx.service"
+        NEWLINE_STYLE UNIX)
+
+# Configure postinst
+configure_file("resources/aprs_wx/postinst.in" "resources/aprs_wx/postinst"
+        NEWLINE_STYLE UNIX)
+
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
-install(FILES "resources/aprs_wx/config.txt"
-        DESTINATION "/etc/${PROJECT_NAME}"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/aprs_wx/config.txt"
+        DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}"
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
-install(FILES "resources/aprs_wx/aprs_wx.service"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/aprs_wx.service"
         DESTINATION /etc/systemd/system
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
@@ -50,8 +66,9 @@ set(CPACK_GENERATOR "DEB")
 #
 set(CPACK_PACKAGE_APRS_WX_SYSTEMD_EXECUTABLES APRS_WX)
 set(CPACK_DEBIAN_APRS_WX_SYSTEMD_PACKAGE_NAME "${PROJECT_NAME}")
-set(CPACK_DEBIAN_APRS_WX_SYSTEMD_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_SOURCE_DIR}/resources/aprs_wx/postinst")
-#
+set(CPACK_DEBIAN_APRS_WX_SYSTEMD_PACKAGE_CONTROL_EXTRA "${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/postinst;${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/conffiles")
+#        "${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/conffiles;")
+#;
 set(CPACK_DEBIAN_PACKAGE_SECTION "hamradio")
 set(CPACK_RPM_PACKAGE_URL "https://github.com/pa28/aprs_wx")
 set(CPACK_RPM_PACKAGE_VENDOR "www.hrbuckley.net")

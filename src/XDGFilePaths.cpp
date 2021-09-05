@@ -64,7 +64,7 @@ namespace xdg {
                 mConfigHome = getenv_path(XDGFilePaths::XDG_CONFIG_HOME, mAppName, true);
                 mCacheHome = getenv_path(XDGFilePaths::XDG_CACHE_HOME, mAppName, true);
             }
-            mAppResources = getenv_path(XDGFilePaths::XDG_DATA_DIRS, mAppName + "/resources", false);
+            mAppResources = getenv_path(XDGFilePaths::XDG_DATA_DIRS, mAppName, false);
             mLibResources = getenv_path(XDGFilePaths::XDG_DATA_DIRS, "Rose/resources", false);
         } else {
             std::cerr << StringCompositor('"', procExec, '"', " is not a symbolic link to application.\n");
