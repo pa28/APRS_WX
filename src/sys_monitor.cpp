@@ -145,7 +145,7 @@ int main(int argc, char **argv) {
                         stringstream strm;
                         ifs >> temperature;
                         ifs.close();
-                        strm << "cpuTemp=" << static_cast<double>(temperature) / 1000. << '\n';
+                        strm << "cpuTemp=" << temperature / 1000 << '\n';
                         cout << strm.str();
                         measurements = true;
                     }
