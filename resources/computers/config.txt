@@ -9,5 +9,11 @@ influxTLS 0
 influxHost example.com
 # The database connection poort
 influxPort 8086
-# The database name to store measuerments.
+# The database name to store measurements.
 influxDb computers
+#
+# Sensor specifications
+# For Raspberry Pi
+cpuZone 0
+# For Intel/Arm
+#cpuZone 2

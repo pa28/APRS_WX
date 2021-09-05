@@ -19,8 +19,8 @@ radius 50
 influxTLS 0
 # The database server host name
 influxHost example.com
-# The database connection poort
+# The database connection port
 influxPort 8086
-# The database name to store measuerments.
+# The database name to store measurements.
 influxDb aprs_wx
 
