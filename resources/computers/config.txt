@@ -1,0 +1,13 @@
+#
+# Configuration file for computer monitor
+#
+# InfluxDB parameters
+#
+# To use https set this to 1
+influxTLS 0
+# The database server host name
+influxHost example.com
+# The database connection poort
+influxPort 8086
+# The database name to store measuerments.
+influxDb computers

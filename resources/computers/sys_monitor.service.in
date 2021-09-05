@@ -7,9 +7,9 @@ StartLimitIntervalSec=0
 Type=simple
 Restart=on-failure
 RestartSec=10
-User=daemon
-Group=daemon
-ExecStart=/usr/local/bin/sys_monitor
+User=${DAEMON_USER}
+Group=${DAEMON_GROUP}
+ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${MONITOR_NAME}
 
 [Install]
 WantedBy=multi-user.target

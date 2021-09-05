@@ -9,7 +9,7 @@ Restart=on-failure
 RestartSec=10
 User=${DAEMON_USER}
 Group=${DAEMON_GROUP}
-ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/APRS_WX
+ExecStart=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_BINDIR}/${PROJECT_NAME}
 
 [Install]
 WantedBy=multi-user.target
