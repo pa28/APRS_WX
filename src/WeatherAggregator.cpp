@@ -5,6 +5,7 @@
  * @date 2021-08-30
  */
 
+#include <cmath>
 #include <curlpp/cURLpp.hpp>
 #include <curlpp/Easy.hpp>
 #include <curlpp/Options.hpp>
@@ -33,35 +34,55 @@ namespace aprs {
     }
 
     std::ostream &WeatherAggregator::printInfluxFormat(ostream &strm, const std::string &prefix) const {
-        std::optional<double> temperature{}, relHumidity{};
+        std::optional<double> temperature{}, relHumidity{}, windGust{};
         for (auto &item : WeatherItemList) {
             if (item.wxFlag != 'l') {
                 auto idx = static_cast<std::size_t>(item.wxSym);
                 if (mValueAggregate[idx].has_value()) {
                     auto value = mValueAggregate[idx].value() / mHannAggregate[idx].value();
-                    if (item.wxSym == WxSym::Temperature)
-                        temperature = value;
-                    if (item.wxSym == WxSym::Humidity)
-                        relHumidity = value;
+
+                    // Apply conversion for temperature, length and speed.
                     if (item.units == Units::Fahrenheit)
                         value = FahrenheitToCelsius(value);
                     else if (item.units == Units::inch_100)
                         value = value * 25.4;
                     else if (item.units == Units::MPH)
                         value = value * 1.60934;
+
+                    // Gather values needed for humidex and wind chill.
+                    if (item.wxSym == WxSym::Temperature)
+                        temperature = value;
+                    else if (item.wxSym == WxSym::Humidity)
+                        relHumidity = value;
+                    else if (item.wxSym == WxSym::WindGust)
+                        windGust = value;
+
+                    // Add value to influx push.
                     strm << prefix << item.dbName << '=' << value << '\n';
                 }
             }
         }
 
+        // Compute dew point, humidex and wind chill.
         if (temperature.has_value() && relHumidity.has_value()) {
-            auto celsius = FahrenheitToCelsius(temperature.value());
+            // dew point and humidex.
+            auto celsius = temperature.value();
             auto dewPoint = celsius - ((100. - relHumidity.value()) / 5.);
             auto e = 6.11 * exp(5417.7530 * ((1. / 273.16) - (1. / (dewPoint + 273.15))));
             auto h = 0.5555 * (e - 10.0);
             auto humidex = celsius + h;
+
             strm << prefix << "DewPt=" << dewPoint << '\n';
             strm << prefix << "Humidex=" << humidex << '\n';
+        }
+
+        if (temperature.has_value() && windGust.has_value()) {
+            auto celsius = temperature.value();
+            auto velocity = windGust.value();
+
+            auto windChill = 13.12 + 0.6215 * celsius - 11.37 * pow(velocity,0.16) + 0.3965 * celsius * pow(velocity,0.16);
+
+            strm << prefix << "WindChill=" << windChill << '\n';
         }
 
         return strm;
