@@ -21,7 +21,7 @@ add_executable(APRS_WX
         src/APRS_IS.cpp
         src/WeatherAggregator.cpp
         src/ConfigFile.cpp
-        src/XDGFilePaths.cpp)
+        src/XDGFilePaths.cpp src/InputParser.h)
 
 target_link_libraries(APRS_WX
         stdc++fs
@@ -29,7 +29,11 @@ target_link_libraries(APRS_WX
 )
 
 add_executable(SYS_MONITOR
-        src/sys_monitor.cpp)
+        src/sys_monitor.cpp
+        src/XDGFilePaths.cpp
+        src/InputParser.h
+        src/ConfigFile.cpp
+        src/unixstd.h)
 
 target_link_libraries(SYS_MONITOR
         stdc++fs
