@@ -8,6 +8,10 @@
 #include <filesystem>
 #include <csignal>
 #include <atomic>
+#include <curlpp/cURLpp.hpp>
+#include <curlpp/Easy.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/Exception.hpp>
 #include "unixstd.h"
 #include "InputParser.h"
 #include "XDGFilePaths.h"
@@ -134,37 +138,65 @@ int main(int argc, char **argv) {
             if (!filesystem::exists(cpuZone))
                 cpuZone.clear();
 
+            // Build the influx server URL
+            stringstream url{};
+            url << (influxTls? "https" : "http") << "://" << influxHost.value() << ':'
+                << influxPort.value() << "/write?db=" << influxDb.value();
+
+            // Build the influx data prefix
+            stringstream prefix{};
+            prefix << "sys,host=" << Hostname::name() << ' ';
+
             // Start the daemon process.
             while (run) {
-                bool measurements = false;
+                stringstream measurements{};
                 if (!cpuZone.empty()) {
                     std::ifstream ifs;
                     ifs.open(cpuZone, std::ofstream::in);
                     if (ifs) {
                         int temperature;
-                        stringstream strm;
                         ifs >> temperature;
                         ifs.close();
-                        strm << "cpuTemp=" << temperature / 1000 << '\n';
-                        cout << strm.str();
-                        measurements = true;
+                        measurements << prefix.str() << "cpuTemp=" << temperature / 1000 << '\n';
                     }
                 }
 
-                if (measurements)
-                    sleep(5);
-                else {
+                auto data = measurements.str();
+                if (!data.empty()) {
+                    try {
+                        cURLpp::Cleanup cleaner;
+                        cURLpp::Easy request;
+                        request.setOpt(new cURLpp::Options::Url(url.str()));
+                        request.setOpt(new curlpp::options::Verbose(false));
+
+                        std::list<std::string> header;
+                        header.emplace_back("Content-Type: application/octet-stream");
+                        request.setOpt(new curlpp::options::HttpHeader(header));
+
+                        request.setOpt(new curlpp::options::PostFieldSize(data.length()));
+                        request.setOpt(new curlpp::options::PostFields(data));
+
+                        request.perform();
+                    } catch (curlpp::LogicError &e) {
+                        std::cerr << e.what() << std::endl;
+                        return 1;
+                    } catch (curlpp::RuntimeError &e) {
+                        std::cerr << e.what() << std::endl;
+                        return 1;
+                    }
+                    sleep(30);
+                } else {
                     cerr << "No active measurements, exiting\n";
                     run = false;
                 }
             }
         } else if (status == ConfigFile::NO_FILE) {
             cerr << "Configuration file specified " << configFilePath << " does not exist.\n";
-            exit(1);
+            return 1;
         } else if (status == ConfigFile::OPEN_FAIL) {
             cerr << "Could not open configuration file " << configFilePath << ": "
                  << std::strerror(errno) << '\n';
-            exit(1);
+            return 1;
         }
     } catch (exception &e) {
         cerr << e.what() << '\n';
