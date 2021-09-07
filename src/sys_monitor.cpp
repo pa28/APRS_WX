@@ -52,6 +52,7 @@ protected:
     static constexpr std::string_view mProcStatFile {"/proc/stat"};
     std::filesystem::path mProcStatPath{};
     std::array<long, static_cast<std::size_t>(ItemCount)> mData{};
+    std::array<long, static_cast<std::size_t>(ItemCount)> mPastData{};
 
 public:
     CpuStats() {
@@ -77,7 +78,7 @@ public:
                 long value{};
                 auto [ptr, ec] {std::from_chars(line_view.begin()+p, line_view.end(), value)};
                 if (ec == std::errc()) {
-                    mData[static_cast<std::size_t>(idx)] = value - mData[static_cast<std::size_t>(idx)];
+                    mData[static_cast<std::size_t>(idx)] = value;
                     p = line_view.find_first_of("0123456789", ptr - line_view.data());
                     ++idx;
                 } else if (ec == std::errc::invalid_argument) {
@@ -93,16 +94,20 @@ public:
         return true;
     }
 
+    void setPastData() {
+        mPastData = mData;
+    }
+
     std::tuple<long,long> getUsage() const {
         long used{}, idle{};
         for (auto idx = static_cast<std::size_t>(User); idx < static_cast<std::size_t>(ItemCount); ++idx) {
             switch (static_cast<Item>(idx)) {
                 case Idle:
                 case IOWait:
-                    idle += mData[static_cast<std::size_t>(idx)];
+                    idle += mData[static_cast<std::size_t>(idx)] - mPastData[static_cast<std::size_t>(idx)];
                     break;
                 default:
-                    used += mData[static_cast<std::size_t>(idx)];
+                    used += mData[static_cast<std::size_t>(idx)] - mPastData[static_cast<std::size_t>(idx)];
             }
         }
 
@@ -226,6 +231,8 @@ int main(int argc, char **argv) {
             // Build the influx data prefix
             stringstream prefix{};
             prefix << "sys,host=" << Hostname::name() << ' ';
+            if (cpuStats.getData())
+                cpuStats.setPastData();
 
             // Start the daemon process.
             while (run) {
@@ -243,8 +250,12 @@ int main(int argc, char **argv) {
 
                 if (cpuStats.getData()) {
                     auto [used, idle] = cpuStats.getUsage();
-                    double percentUsage = 100.0 * static_cast<double>(used) / static_cast<double>(used + idle);
+                    double percentUsage = 0.;
+                    if ((used + idle) != 0)
+                        percentUsage = 100.0 * static_cast<double>(used) / static_cast<double>(used + idle);
+
                     measurements << prefix.str() << "cpuUse=" << percentUsage << '\n';
+                    cpuStats.setPastData();
                 }
 
                 auto data = measurements.str();
