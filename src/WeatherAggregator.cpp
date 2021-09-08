@@ -40,6 +40,14 @@ namespace aprs {
                 auto idx = static_cast<std::size_t>(item.wxSym);
                 if (mValueAggregate[idx].has_value()) {
                     auto value = mValueAggregate[idx].value() / mHannAggregate[idx].value();
+                    switch (item.units) {
+                        case Units::inch_100:
+                            if (value < 0.01)
+                                value = 0.;
+                            break;
+                        default:
+                            break;
+                    }
 
                     // Apply conversion for temperature, length and speed.
                     if (item.units == Units::Fahrenheit)
