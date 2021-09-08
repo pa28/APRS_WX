@@ -41,29 +41,23 @@ target_link_libraries(SYS_MONITOR
 
 # APRS_WX
 # conffiles
-configure_file("resources/aprs_wx/conffiles.in" "resources/aprs_wx/conffiles"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/aprs_wx/conffiles.in" "resources/aprs_wx/conffiles" NEWLINE_STYLE UNIX)
 
 # Configure the systemctl service file.
-configure_file("resources/aprs_wx/aprs_wx.service.in" "resources/aprs_wx/aprs_wx.service"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/aprs_wx/aprs_wx.service.in" "resources/aprs_wx/aprs_wx.service" NEWLINE_STYLE UNIX)
 
 # Configure postinst
-configure_file("resources/aprs_wx/postinst.in" "resources/aprs_wx/postinst"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/aprs_wx/postinst.in" "resources/aprs_wx/postinst" NEWLINE_STYLE UNIX)
 
 # SYS_MONITOR
 # conffiles
-configure_file("resources/computers/conffiles.in" "resources/computers/conffiles"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/computers/conffiles.in" "resources/computers/conffiles" NEWLINE_STYLE UNIX)
 
 # Configure the systemctl service file.
-configure_file("resources/computers/sys_monitor.service.in" "resources/computers/sys_monitor.service"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/computers/sys_monitor.service.in" "resources/computers/sys_monitor.service" NEWLINE_STYLE UNIX)
 
 # Configure postinst
-configure_file("resources/computers/postinst.in" "resources/computers/postinst"
-        NEWLINE_STYLE UNIX)
+configure_file("resources/computers/postinst.in" "resources/computers/postinst" NEWLINE_STYLE UNIX)
 
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
