@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.2.4.0)
+project(APRS_WX VERSION 0.2.5.0)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 
@@ -49,6 +49,10 @@ configure_file("resources/aprs_wx/aprs_wx.service.in" "resources/aprs_wx/aprs_wx
 # Configure postinst
 configure_file("resources/aprs_wx/postinst.in" "resources/aprs_wx/postinst" NEWLINE_STYLE UNIX)
 
+# Configure config
+configure_file("resources/aprs_wx/config.in" "resources/aprs_wx/config.txt" NEWLINE_STYLE UNIX)
+configure_file("resources/aprs_wx/config.in" "resources/aprs_wx/config.pkg" NEWLINE_STYLE UNIX)
+
 # SYS_MONITOR
 # conffiles
 configure_file("resources/computers/conffiles.in" "resources/computers/conffiles" NEWLINE_STYLE UNIX)
@@ -59,12 +63,17 @@ configure_file("resources/computers/sys_monitor.service.in" "resources/computers
 # Configure postinst
 configure_file("resources/computers/postinst.in" "resources/computers/postinst" NEWLINE_STYLE UNIX)
 
+# Configure config
+configure_file("resources/computers/config.in" "resources/computers/config.txt" NEWLINE_STYLE UNIX)
+configure_file("resources/computers/config.in" "resources/computers/config.pkg" NEWLINE_STYLE UNIX)
+
 install(TARGETS APRS_WX
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
         )
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/aprs_wx/config.txt"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/config.txt"
+        "${CMAKE_CURRENT_BINARY_DIR}/resources/aprs_wx/config.pkg"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}"
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE
         COMPONENT APRS_WX_SYSTEMD EXCLUDE_FROM_ALL
@@ -79,7 +88,8 @@ install(TARGETS ${MONITOR_NAME}
         DESTINATION ${CMAKE_INSTALL_BINDIR}
         COMPONENT SYS_MONITOR EXCLUDE_FROM_ALL)
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/resources/computers/config.txt"
+install(FILES "${CMAKE_CURRENT_BINARY_DIR}/resources/computers/config.txt"
+        "${CMAKE_CURRENT_BINARY_DIR}/resources/computers/config.pkg"
         DESTINATION "${CMAKE_INSTALL_DATADIR}/${MONITOR_NAME}"
         PERMISSIONS OWNER_READ OWNER_WRITE GROUP_READ GROUP_WRITE
         COMPONENT SYS_MONITOR EXCLUDE_FROM_ALL
