@@ -13,6 +13,8 @@ The resulting information is pushed to an [InfluxDB](www.influxdata.com) databas
     1. [Get the Source](#clone)
     1. [Compile](#compile)
     1. [Install](#install)
+1. [Configure](#configure)
+1. [Running](#running)
 
 
 <a name="build"/>
@@ -60,8 +62,13 @@ make install
 make package
 ```
 
-### Configure
-Edit ```/usr/local/share/APRS_WX/config.txt```
+<a name="configure"/>
+
+## Configure
+The configuration file will be located at `/usr/local/share/APRS_WX/config.txt` or
+equivalent location. The package default configuration file will also be installed
+in the same directory under the name `config.pkg` and updated if aditional optiions
+are added.
 
 Default config.txt:
 ``` text
@@ -92,7 +99,10 @@ influxPort 8086
 influxDb aprs_wx
 ```
 
-### Start the daemon
+<a name="running"/>
+
+## Running the Daemon
+### Start
 ``` shell script
 sudo systemctl start aprs_wx
 sudo systemctl status aprs_wx
