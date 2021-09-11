@@ -1,6 +1,7 @@
 ---
 show_downloads: ["yes"]
 ---
+# Time-Series Data Daemons
 
 ## [influxDB](www.influxdata.com) and [Grafana](https://grafana.com/)
 
@@ -12,8 +13,8 @@ server you coudl start here:
 ## Data Collection Daemons
 
 This is where I will collect the list of my data collection daemons. There are two categoreis:
-    * those aimed at Amateur Radio Operators.
-    * those aimed at a general audience.
+* those aimed at Amateur Radio Operators.
+* those aimed at a general audience.
 
 ### Amateur Radio
 
