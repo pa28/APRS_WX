@@ -9,13 +9,13 @@ The resulting information is pushed to an [InfluxDB](www.influxdata.com) databas
 
 ## Table of Contents
 1. [Prebuilt Packages](#debian-packages)
-1. [Build](#build)
+1. [Build](#building)
 1. [Requirements](#requirements)
-    1. [Get the Source](#clone)
+    1. [Get the Source](#get-the-software)
     1. [Compile](#compile)
     1. [Install](#install)
 1. [Configure](#configure)
-1. [Running](#running)
+1. [Running](#running-the-daemon)
 
 ## Debian Packages
 
@@ -27,12 +27,7 @@ sudo apt update
 sudo apt install aprs_wx
 ```
 
-
-<a name="build"/>
-
 ## Building
-
-<a name="requirements"/>
 
 ### Requirements:
 * git
@@ -44,14 +39,11 @@ sudo apt install aprs_wx
 ``` shell script
 apt install git cmake g++ libcurl4-openssl-dev libcurlpp-dev
 ```
-<a name="clone"/>
 
 ### Get the software
 ``` shell script
 git clone git@github.com:pa28/APRS_WX.git
 ```
-
-<a name="compile"/>
 
 ### Compile
 ``` shell script
@@ -61,7 +53,6 @@ cd cmake-build-release
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
-<a name="install"/>
 
 ### Install
 ``` shell script
@@ -72,8 +63,6 @@ make install
 ``` shell script
 make package
 ```
-
-<a name="configure"/>
 
 ## Configure
 The configuration file will be located at `/usr/local/share/APRS_WX/config.txt` or
@@ -109,8 +98,6 @@ influxPort 8086
 # The database name to store measurements.
 influxDb aprs_wx
 ```
-
-<a name="running"/>
 
 ## Running the Daemon
 ### Start
