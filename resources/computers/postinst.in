@@ -1,6 +1,0 @@
-#!/bin/bash
-systemctl daemon-reload
-chown ${DAEMON_USER}:${DAEMON_GROUP} ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${MONITOR_NAME}/config.txt
-if systemctl is-enabled sys_monitor.service > /dev/null; then
-    systemctl restart sys_monitor.service
-fi

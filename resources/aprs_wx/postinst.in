@@ -1,6 +1,0 @@
-#!/bin/bash
-systemctl daemon-reload
-chown ${DAEMON_USER}:${DAEMON_GROUP} ${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_DATADIR}/${PROJECT_NAME}/config.txt
-if systemctl is-enabled aprs_wx.service > /dev/null; then
-    systemctl restart aprs_wx.service
-fi
