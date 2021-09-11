@@ -48,24 +48,24 @@ and upgraded as the configuration options change.
 <dt><strong>callsign</strong>:</dt>
 <dd>Specifies the amatuer radio callsign of the person responsible for running the daemon.
 This is used to authenticate to the APRS_IS server. The default value begins with _N0CALL_
-which indicates the configuration has not been customized.</dd><br/><br/>
+which indicates the configuration has not been customized.</dd><br/>
 <dt><strong>passcode</strong>:</dt>
 <dd>The passcode is associated with the callsign and is sued to authenticate the daemon.
-If you do not know your passcode, or how to generate it contact the software provider.</dd><br/><br/>
+If you do not know your passcode, or how to generate it contact the software provider.</dd><br/>
 <dt><strong>latitude</strong>:</dt>
-<dd>The latitude of the point of interest (home QTH) in decimal degrees, North positive.</dd><br/><br/>
+<dd>The latitude of the point of interest (home QTH) in decimal degrees, North positive.</dd><br/>
 <dt><strong>longitude</strong>:</dt>
-<dd>The longitude of the point of interest (home QTH) in decimal degrees, East positive.</dd><br/><br/>
+<dd>The longitude of the point of interest (home QTH) in decimal degrees, East positive.</dd><br/>
 <dt><strong>radius</strong>:</dt>
-<dd>The radius of the area of interest in kilometers.</dd><br/><br/>
+<dd>The radius of the area of interest in kilometers.</dd><br/>
 <dt><strong>influxTLS</strong>:</dt>
-<dd>Set to 1 to use a TLS connection, 0 to use an unencrypted connection.</dd><br/><br/>
+<dd>Set to 1 to use a TLS connection, 0 to use an unencrypted connection.</dd><br/>
 <dt><strong>influxHost</strong>:</dt>
-<dd>The host name of the systme running the influxDB server.</dd><br/><br/>
+<dd>The host name of the systme running the influxDB server.</dd><br/>
 <dt><strong>influxPort</strong>:</dt>
-<dd>The port used to connect to the influx server.</dd><br/><br/>
+<dd>The port used to connect to the influx server.</dd><br/>
 <dt><strong>influxDb</strong>:</dt>
-<dd>The name of the database measurements will be sent to.</dd><br/><br/>
+<dd>The name of the database measurements will be sent to.</dd><br/>
 </dl>
 
 ##### Command Line Options
