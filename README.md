@@ -7,7 +7,19 @@ server, configure the  feed to send packets within a specified radius of a given
 aggregated using a weight based on the distance from the location which decays to zero at or before the specified radius.
 The resulting information is pushed to an [InfluxDB](www.influxdata.com) database.
 
+## Table of Contents
+1. [Build](#build)
+1. [Requirements](#requirements)
+    1. [Get the Source](#clone)
+    1. [Compile](#compile)
+    1. [Install](#install)
+
+
+<a name="build"/>
+
 ## Building
+
+<a name="requirements"/>
 
 ### Requirements:
 * git
@@ -19,13 +31,16 @@ The resulting information is pushed to an [InfluxDB](www.influxdata.com) databas
 ``` shell script
 apt install git cmake g++ libcurl4-openssl-dev libcurlpp-dev
 ```
+<a name="clone"/>
 
 ### Get the software
 ``` shell script
 git clone git@github.com:pa28/APRS_WX.git
 ```
 
-### Build
+<a name="compile"/>
+
+### Compile
 ``` shell script
 cd APRS_WX
 mkdir cmake-build-release
@@ -33,6 +48,7 @@ cd cmake-build-release
 cmake -DCMAKE_BUILD_TYPE=Release ..
 make
 ```
+<a name="install"/>
 
 ### Install
 ``` shell script
