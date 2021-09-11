@@ -32,17 +32,24 @@ from my [Repository](https://pa28.github.io/Repository). Once the repository is 
 system the daemon may be installed with: `sudo apt install aprs_wx`
 
 This is a [systemd](https://en.wikipedia.org/wiki/Systemd) service which you may:
-    * start: `sudo systemctl start aprs_wx`
-    * stop: `sudo systemctl stop aprs_wx`
-    * derermine status: `sudo systemctl status aprs_wx`
-    * enable to start at boot: `sudo systemctl enable aprs_wx`
-    * disable from start at boot: `sudo systemctl disable aprs_wx`
+* start: `sudo systemctl start aprs_wx`
+* stop: `sudo systemctl stop aprs_wx`
+* derermine status: `sudo systemctl status aprs_wx`
+* enable to start at boot: `sudo systemctl enable aprs_wx`
+* disable from start at boot: `sudo systemctl disable aprs_wx`
 
-Operation is controlled by a configuration file located at `/usr/local/share/APRS_WX/config.txt`.
-A shadow configuration file located at `/usr/local/share/APRS_WX/config.pkg` is also installed
-and upgraded as the configuration options change.
+Operation is controlled by a configuration file located at:
+```
+/usr/local/share/APRS_WX/config.txt
+```
 
-##### Configuration options:
+A shadow configuration file located at:
+```
+/usr/local/share/APRS_WX/config.pkg
+```
+is also installed and upgraded as the configuration options change.
+
+##### Configuration options
 
 <dl>
 <dt><strong>callsign</strong>:</dt>
