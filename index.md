@@ -78,6 +78,6 @@ If you do not know your passcode, or how to generate it contact the software pro
 ##### Command Line Options
 
 The binary, usually at `/usr/local/bin/aprs_wx` may be run manually for testing purposes by:
-```shell script
+```
 sudo aprs_wx --config /usr/local/share/APRS_WX/config.txt
 ```
