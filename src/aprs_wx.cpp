@@ -97,7 +97,6 @@ int main(int argc, char **argv) {
         if (auto status = configFile.open(); status == ConfigFile::OK) {
             bool validFile{true};
             configFile.process(ConfigSpec, [&](std::size_t idx, const std::string_view &data) {
-                // ToDo: Implement item type decoding.
                 bool validValue{false};
                 switch (static_cast<ConfigItem>(idx)) {
                     case ConfigItem::Callsign:
