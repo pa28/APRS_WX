@@ -8,6 +8,7 @@ aggregated using a weight based on the distance from the location which decays t
 The resulting information is pushed to an [InfluxDB](www.influxdata.com) database.
 
 ## Table of Contents
+1. [Prebuilt Packages](#debian-packages)
 1. [Build](#build)
 1. [Requirements](#requirements)
     1. [Get the Source](#clone)
@@ -15,6 +16,16 @@ The resulting information is pushed to an [InfluxDB](www.influxdata.com) databas
     1. [Install](#install)
 1. [Configure](#configure)
 1. [Running](#running)
+
+## Debian Packages
+
+Debian packages are available for 32 bit ARM architecture which runs on Raspberry Pi, and 64 bit Intel
+architecture which runs on Intel and AMD processors. Configure the
+[repository](https://pa28.github.io/Repository) then
+```
+sudo apt update
+sudo apt install aprs_wx
+```
 
 
 <a name="build"/>
