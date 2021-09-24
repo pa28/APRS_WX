@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.2.5.0)
+project(APRS_WX VERSION 0.2.6.0)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 

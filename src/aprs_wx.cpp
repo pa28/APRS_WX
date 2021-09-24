@@ -219,6 +219,7 @@ int main(int argc, char **argv) {
         sock.close();
     } catch (exception &e) {
         cerr << e.what() << '\n';
+        return 1;
     }
 
     return 0;
