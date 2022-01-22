@@ -207,6 +207,8 @@ int main(int argc, char **argv) {
                                                                        influxPort.value(), influxDb.value());
                                 }
                                     break;
+                                case PacketStatus::DecodingError:
+                                    return 1;
                                 default:
                                     break;
                             }
