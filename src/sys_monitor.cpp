@@ -101,13 +101,23 @@ public:
         mPastData = mData;
     }
 
-    std::tuple<long,long> getUsage() const {
-        long used{}, idle{};
+    [[nodiscard]] std::tuple<ProcStatDataType,ProcStatDataType> getUsage() const {
+        ProcStatDataType used{}, idle{};
         for (auto idx = static_cast<std::size_t>(User); idx < static_cast<std::size_t>(ItemCount); ++idx) {
             switch (static_cast<Item>(idx)) {
                 case Idle:
                 case IOWait:
                     idle += mData[static_cast<std::size_t>(idx)] - mPastData[static_cast<std::size_t>(idx)];
+                    break;
+                case User:
+                case Nice:
+                case System:
+                case IRQ:
+                case SoftIRQ:
+                case Steal:
+                case Guest:
+                case GuestNice:
+                case ItemCount:
                     break;
                 default:
                     used += mData[static_cast<std::size_t>(idx)] - mPastData[static_cast<std::size_t>(idx)];
@@ -272,7 +282,7 @@ int main(int argc, char **argv) {
                         header.emplace_back("Content-Type: application/octet-stream");
                         request.setOpt(new curlpp::options::HttpHeader(header));
 
-                        request.setOpt(new curlpp::options::PostFieldSize(data.length()));
+                        request.setOpt(new curlpp::options::PostFieldSize(static_cast<long>(data.length())));
                         request.setOpt(new curlpp::options::PostFields(data));
 
                         request.perform();
