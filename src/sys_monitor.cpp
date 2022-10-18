@@ -32,9 +32,13 @@ void signalHandler(int signum) {
     run = false;
 }
 
+/**
+ * @class CpuStats
+ * @brief A Class to fetch, process and store CPU operating statistics.
+ */
 class CpuStats {
 public:
-    using ProcStatDataType = unsigned long long;
+    using ProcStatDataType = unsigned long long;    ///< Type to store stats data in
 
 protected:
     enum Item {
