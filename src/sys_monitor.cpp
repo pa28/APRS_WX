@@ -33,6 +33,9 @@ void signalHandler(int signum) {
 }
 
 class CpuStats {
+public:
+    using ProcStatDataType = unsigned long long;
+
 protected:
     enum Item {
         User,
@@ -51,8 +54,8 @@ protected:
     std::string mName{};
     static constexpr std::string_view mProcStatFile {"/proc/stat"};
     std::filesystem::path mProcStatPath{};
-    std::array<long, static_cast<std::size_t>(ItemCount)> mData{};
-    std::array<long, static_cast<std::size_t>(ItemCount)> mPastData{};
+    std::array<ProcStatDataType, static_cast<std::size_t>(ItemCount)> mData{};
+    std::array<ProcStatDataType, static_cast<std::size_t>(ItemCount)> mPastData{};
 
 public:
     CpuStats() {
@@ -75,7 +78,7 @@ public:
             p = line_view.find_first_of("0123456789", p);
             auto idx = static_cast<std::size_t>(User);
             while (p != std::string_view::npos && idx < static_cast<std::size_t>(ItemCount)) {
-                long value{};
+                ProcStatDataType value{};
                 auto [ptr, ec] {std::from_chars(line_view.begin()+p, line_view.end(), value)};
                 if (ec == std::errc()) {
                     mData[static_cast<std::size_t>(idx)] = value;
