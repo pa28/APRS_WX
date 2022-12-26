@@ -183,42 +183,57 @@ int main(int argc, char **argv) {
                   << callsign.value()
                   << ' ' << filter << '\n';
 
-        APRS_IS sock{callsign.value(), passCode.value(), filter};
-        sock.mQthPosition.mLat = qthLatitude;
-        sock.mQthPosition.mLon = qthLongitude;
-        sock.mRadius = filterRadius;
+        while (run) {
+            APRS_IS sock{callsign.value(), passCode.value(), filter};
+            sock.mQthPosition.mLat = qthLatitude;
+            sock.mQthPosition.mLon = qthLongitude;
+            sock.mRadius = filterRadius;
 
-        if (sock.openConnection()) {
-            while (run) {
-                sock.getPacket();
+            unsigned long packetCount = 0;
 
-                if (!sock.mPacket.empty()) {
-                    if (!sock.prefix("# aprsc")) {
-                        if (sock.charAtIndex() != '#') {
-                            auto packet = sock.decode();
-                            switch (packet->status()) {
-                                case PacketStatus::WxPacket: {
-                                    auto wx = std::unique_ptr<APRS_WX_Report>(
-                                            dynamic_cast<APRS_WX_Report *>(packet.release()));
-                                    weatherAggregator[wx->mName] = std::move(wx);
-                                    weatherAggregator.aggregateData();
-                                    if (influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
-                                        weatherAggregator.pushToInflux(influxHost.value(), influxTls,
-                                                                       influxPort.value(), influxDb.value());
+            if (sock.openConnection()) {
+                while (packetCount < 100) {
+                    sock.getPacket();
+
+                    if (!sock.mPacket.empty()) {
+                        std::cerr << sock.mPacket;
+                        ++packetCount;
+                        if (!sock.prefix("# aprsc")) {
+                            if (sock.charAtIndex() != '#') {
+                                auto packet = sock.decode();
+                                switch (packet->status()) {
+                                    case PacketStatus::WxPacket: {
+//                                        ++packetCount;
+                                        auto wx = std::unique_ptr<APRS_WX_Report>(
+                                                dynamic_cast<APRS_WX_Report *>(packet.release()));
+                                        weatherAggregator[wx->mName] = std::move(wx);
+                                        weatherAggregator.aggregateData();
+                                        if (influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
+                                            weatherAggregator.pushToInflux(influxHost.value(), influxTls,
+                                                                           influxPort.value(), influxDb.value());
+                                    }
+                                        break;
+                                    case PacketStatus::DecodingError:
+                                        cerr << "Packet decoding error.\n";
+                                        return 1;
+                                    default:
+                                        break;
                                 }
-                                    break;
-                                case PacketStatus::DecodingError:
-                                    return 1;
-                                default:
-                                    break;
                             }
+                        } else {
+                            if (!weatherAggregator.empty() && influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
+                                weatherAggregator.pushToInflux(influxHost.value(), influxTls,
+                                                               influxPort.value(), influxDb.value());
                         }
+                    } else {
+                        std::cerr << "*** Empty packet.\n";
+                        return 1;
                     }
                 }
             }
-        }
 
-        sock.close();
+            sock.close();
+        }
     } catch (exception &e) {
         cerr << e.what() << '\n';
         return 1;
