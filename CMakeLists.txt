@@ -15,6 +15,8 @@ set(DAEMON_GROUP "daemon")
 set(MONITOR_NAME "SYS_MONITOR")
 set(APRS_WX_CONFIG_DIR "${CMAKE_INSTALL_DATA}")
 
+add_compile_options(-Wall -Wextra -pedantic -Werror -Wconversion)
+
 add_executable(APRS_WX
         src/aprs_wx.cpp
         src/APRS_Packet.cpp
