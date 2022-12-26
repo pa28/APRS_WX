@@ -13,6 +13,8 @@
 #include <utility>
 #include <charconv>
 #include <cstring>
+#include <optional>
+
 /**
  * @class ConfigFile
  * @brief
