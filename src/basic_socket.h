@@ -49,22 +49,23 @@ namespace sockets {
         string peer_host,       ///< The user provided peer host name or address.
                 peer_port;      ///< The user provided peer port or service name.
 
-        int sock_fd,            ///< The socket file descriptor
-                status,         ///< Status of some called messages
-                af_type;        ///< The address family of the socket
+        int af_type;            ///< The address family of the socket
 
         SocketType socket_type;     ///< The type of socket
+
+        int sock_fd,            ///< The socket file descriptor
+                status;         ///< Status of some called messages
 
         struct sockaddr_storage peer_addr;  ///< Storage of the peer address used to connect
         socklen_t peer_len;                 ///< The length of the peer address storage
 
-        basic_socket(string host, string port) :
+        [[maybe_unused]] basic_socket(string host, string port) :
                 peer_host{std::move(host)},
                 peer_port{std::move(port)},
-                sock_fd{-1},
-                socket_type{SocketType::SockUnknown},
-                status{0},
                 af_type{AF_UNSPEC},
+                socket_type{SocketType::SockUnknown},
+                sock_fd{-1},
+                status{0},
                 peer_addr{},
                 peer_len{sizeof(peer_addr)} {}
 
@@ -83,10 +84,10 @@ namespace sockets {
         ) :
                 peer_host{},
                 peer_port{},
-                sock_fd{fd},
-                socket_type{SocketType::SockAccept},
-                status{},
                 af_type{addr->sa_family},
+                socket_type{SocketType::SockAccept},
+                sock_fd{fd},
+                status{},
                 peer_addr{},
                 peer_len{} {
             memcpy(&peer_addr, addr, len);
@@ -121,7 +122,7 @@ namespace sockets {
             if (getnameinfo((const sockaddr *) &peer_addr, peer_len,
                             hbuf, sizeof(hbuf),
                             sbuf, sizeof(sbuf),
-                            flags) == 0) {
+                            static_cast<int>(flags)) == 0) {
                 result = string{hbuf} + ':' + sbuf;
             }
 
@@ -133,7 +134,7 @@ namespace sockets {
          * @brief Get the socket file descriptor
          * @return the socket file descriptor
          */
-        int fd() {
+        [[nodiscard]] int fd() const {
             return sock_fd;
         }
 
@@ -144,7 +145,7 @@ namespace sockets {
          * @param flags An or mask of flags to set or clear
          * @return -1 on error, 0 on success, errno is set to indicate the error encountered.
          */
-        [[nodiscard]] int socketFlags(bool set, int flags) {
+        [[nodiscard]] int socketFlags(bool set, int flags) const {
             if (sock_fd < 0) {
                 errno = EBADF;
                 return -1;
@@ -166,7 +167,7 @@ namespace sockets {
          * @param close When true set the flag, otherwise clear
          * @return -1 on error, 0 on success, errno is set to indicate the error encountered.
          */
-        int closeOnExec(bool close) {
+        [[nodiscard]] int closeOnExec(bool close) const {
             if (sock_fd < 0) {
                 errno = EBADF;
                 return -1;
@@ -203,7 +204,7 @@ namespace sockets {
          * @param how One of SHUT_RD, SHUT_WR or SHUT_RDWR
          * @return the return value from ::shutdown(2)
          */
-        int shutdown(SocketHow how) {
+        [[maybe_unused]] [[nodiscard]] int shutdown(SocketHow how) const {
             return ::shutdown(sock_fd, how);
         }
 
@@ -212,7 +213,7 @@ namespace sockets {
          * @brief Get the type of the socket
          * @return A SocketType value
          */
-        SocketType socketType() const { return socket_type; }
+        [[nodiscard]] SocketType socketType() const { return socket_type; }
 
 
         /**
@@ -226,14 +227,14 @@ namespace sockets {
          * @brief Get the last set status return value for the socket
          * @return an integer status value
          */
-        int getStatus() const { return status; }
+        [[maybe_unused]] [[nodiscard]] int getStatus() const { return status; }
 
 
         /**
          * @brief Set a status value returned by a function called on the socket
          * @param s an integer status value
          */
-        void setStatus(int s) { status = s; }
+        [[maybe_unused]] void setStatus(int s) { status = s; }
 
     };
 
@@ -289,7 +290,7 @@ namespace sockets {
          *  - closeOnExec(true)
          */
         template<typename... AiFamilyPrefs>
-        int listen(int backlog, AiFamilyPrefs... familyPrefs) {
+        [[maybe_unused]] int listen(int backlog, AiFamilyPrefs... familyPrefs) {
             int socketFlagSet = O_NONBLOCK;
             bool closeExec = true;
 
@@ -428,7 +429,7 @@ namespace sockets {
          * @return
          */
         template <class Socket_t>
-        unique_ptr<Socket_t> accept(int acceptFlags = SOCK_CLOEXEC) {
+        [[maybe_unused]] unique_ptr<Socket_t> accept(int acceptFlags = SOCK_CLOEXEC) {
             if (socketType() == SocketType::SockListen) {
                 struct sockaddr_storage client_addr{};
                 socklen_t length = sizeof(client_addr);
