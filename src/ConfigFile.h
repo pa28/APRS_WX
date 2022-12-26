@@ -102,7 +102,6 @@ public:
         std::string result{};
         for (auto c : text) {
             if (valid(c)) {
-                auto f = filter(c);
                 result.append(1, filter(c));
             } else {
                 return std::nullopt;

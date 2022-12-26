@@ -97,8 +97,6 @@ namespace aprs {
                 break;
         }
 
-        length = degreeLength + minuteLength;
-
         std::optional<long> degrees = decodeValue<long>(degreeLength);
         std::optional<double> minutes = decodeValue<double>(minuteLength);
         char c = static_cast<char>(toupper(decodeCharAtIndex()));

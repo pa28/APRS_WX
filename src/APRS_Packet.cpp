@@ -28,7 +28,6 @@ namespace aprs {
             auto sinLon = sin((lon1 - lon2) / 2.);
             auto sinLonSq = sinLon * sinLon;
             auto d1 = 2. * asin(sqrt(sinLatSq + cos(lat1) * cos(lat2) * sinLonSq));
-            auto d0 = acos(sin(lat1) * sin(lat2) + cos(lat1) * cos(lat2) * cos(lon1 - lon2));
             mDistance = d1 * 6371.;
 
             double dlon = lon2 - lon1;
