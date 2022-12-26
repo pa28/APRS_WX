@@ -83,7 +83,7 @@ public:
             std::memset(buffer, 0, BufferSize);
             std::strncpy(buffer, stringView.data(), stringView.length());
             std::optional<T> value = std::strtod(buffer, &endPtr);
-            if (endPtr - buffer < stringView.length())
+            if ((endPtr >= buffer) && (static_cast<unsigned long>(endPtr - buffer) < stringView.length()))
                 value = std::nullopt;
             return value;
         }

@@ -7,6 +7,7 @@
 
 #include <iostream>
 #include <functional>
+#include <optional>
 #include "ConfigFile.h"
 
 ConfigFile::Status ConfigFile::open() {

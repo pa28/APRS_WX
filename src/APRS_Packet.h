@@ -58,7 +58,7 @@ namespace aprs {
             std::memset(buffer, 0, BufferSize);
             std::strncpy(buffer, str.c_str(), str.length());
             std::optional<T> value = std::strtod(buffer, &endPtr);
-            if (endPtr - buffer < str.length())
+            if ((endPtr >= buffer) && (static_cast<ulong>(endPtr - buffer) < str.length()))
                 value = std::nullopt;
             return value;
         }
@@ -145,7 +145,7 @@ namespace aprs {
         std::string_view suffix;
         Units units;
         double factor;
-        std::size_t precision;
+        int precision;
     };
 
     static constexpr std::array<WeatherItem, 13>

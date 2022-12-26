@@ -80,7 +80,7 @@ namespace aprs {
 
     std::optional<double> APRS_IS::decodeCoordinate(APRS_IS::CoordinateType coordinateType) {
         char positiveChar, negativeChar;
-        std::size_t length, minuteLength, degreeLength;
+        std::size_t minuteLength, degreeLength;
 
         switch (coordinateType) {
             case CoordinateType::LatitudeDDMMsss:

@@ -81,7 +81,7 @@ int main(int argc, char **argv) {
 
         bool influxTls{false};
         std::optional<std::string> influxHost{};
-        std::optional<long> influxPort{};
+        std::optional<unsigned> influxPort{};
         std::optional<std::string> influxDb{};
 
         std::signal(SIGINT, signalHandler);

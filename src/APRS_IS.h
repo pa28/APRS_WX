@@ -91,7 +91,7 @@ namespace aprs {
 
         auto putLine(const std::string &line) {
             auto n = write(fd(), line.data(), line.length());
-            if (n != line.length())
+            if (n != static_cast<ssize_t>(line.length()))
                 std::cerr << "Only " << n << " of " << line.length() << " chars written.\n";
             return n;
         }
