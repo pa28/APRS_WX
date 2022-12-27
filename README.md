@@ -7,6 +7,13 @@ server, configure the  feed to send packets within a specified radius of a given
 aggregated using a weight based on the distance from the location which decays to zero at or before the specified radius.
 The resulting information is pushed to an [InfluxDB](www.influxdata.com) database.
 
+## Version 3.1 Updates
+
+Version 3.1 adds two new features:
+
+1. The server connection is closed after receipt of ```cycleRate``` packets, a new server is selected and a connection established. Servers send identification packets every 20 seconds so the default cycle rate of 100 will cause the choice of a new server in at most 33 minutes 20 seconds. This is reduced for each data packet received. Agregated values are maintained across server re-connections.
+1. The program can be configured to repot data only upon receipt of a new data packet ```influxRepeats == 0``` (the default) or after the receipt of every packet ```influxRepeates != 0```. The former allows Grafana to smooth displayed data.
+
 ## Table of Contents
 1. [Prebuilt Packages](#debian-packages)
 1. [Build](#building)
@@ -86,6 +93,8 @@ latitude 12.3456
 longitude -123.4567
 # APR_IS filter radius in km
 radius 50
+# Server cycle rate (packets)
+cycleRate 100
 #
 # InfluxDB parameters
 #
@@ -97,6 +106,8 @@ influxHost influx
 influxPort 8086
 # The database name to store measurements.
 influxDb aprs_wx
+# Repeat write data to influx on receipt of server identification message if set to 1
+influxRepeats 0
 ```
 
 ## Running the Daemon
@@ -109,4 +120,9 @@ sudo systemctl status aprs_wx
 ### Enable start on boot
 ``` shell script
 sudo systemctl enable aprs_wx
+```
+
+### Tail the log file
+``` shell script
+sudo journalctl -u aprs_wx.service -f
 ```
