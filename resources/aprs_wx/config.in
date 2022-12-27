@@ -12,6 +12,8 @@ latitude 12.3456
 longitude -123.4567
 # APR_IS filter radius in km
 radius 50
+# Server cycle rate (packets)
+cycleRate 100
 #
 # InfluxDB parameters
 #
@@ -23,4 +25,6 @@ influxHost influx
 influxPort 8086
 # The database name to store measurements.
 influxDb aprs_wx
+# Repeat write data to influx on receipt of server identification message if set to 1
+influxRepeats 0
 
