@@ -52,6 +52,8 @@ int main(int argc, char **argv) {
         InfluxHost,
         InfluxPort,
         InfluxDb,
+        InfluxRepeats,
+        ServerCycleRate,
     };
 
     std::vector<ConfigFile::Spec> ConfigSpec
@@ -64,7 +66,9 @@ int main(int argc, char **argv) {
                      {"influxTLS", ConfigItem::InfluxTLS},
                      {"influxHost", ConfigItem::InfluxHost},
                      {"influxPort", ConfigItem::InfluxPort},
-                     {"influxDb", ConfigItem::InfluxDb}
+                     {"influxDb", ConfigItem::InfluxDb},
+                     {"influxRepeats", ConfigItem::InfluxRepeats},
+                     {"cycleRate", ConfigItem::ServerCycleRate},
              }};
 
     try {
@@ -80,6 +84,8 @@ int main(int argc, char **argv) {
         std::optional<long> filterRadius{};
 
         bool influxTls{false};
+        bool influxRepeats{false};
+        unsigned long serverCycleRate{100};
         std::optional<std::string> influxHost{};
         std::optional<unsigned> influxPort{};
         std::optional<std::string> influxDb{};
@@ -144,6 +150,20 @@ int main(int argc, char **argv) {
                         });
                         validValue = influxDb.has_value();
                         break;
+                    case ConfigItem::InfluxRepeats: {
+                        std::optional<long> value = configFile.safeConvert<long>(data);
+                        validValue = value.has_value();
+                        if (validValue)
+                            influxRepeats = value.value() != 0;
+                    }
+                        break;
+                    case ConfigItem::ServerCycleRate: {
+                        std::optional<long> value = configFile.safeConvert<long>(data);
+                        validValue = value.has_value();
+                        if (validValue && value.value() >= 0)
+                            serverCycleRate = static_cast<unsigned long>(value.value());
+                    }
+                        break;
                 }
                 validFile = validFile & validValue;
                 if (!validValue) {
@@ -191,7 +211,7 @@ int main(int argc, char **argv) {
             unsigned long packetCount = 0;
 
             if (sock.openConnection()) {
-                while (packetCount < 100) {
+                while (packetCount < serverCycleRate) {
                     sock.getPacket();
 
                     if (!sock.mPacket.empty()) {
@@ -202,7 +222,6 @@ int main(int argc, char **argv) {
                                 auto packet = sock.decode();
                                 switch (packet->status()) {
                                     case PacketStatus::WxPacket: {
-//                                        ++packetCount;
                                         auto wx = std::unique_ptr<APRS_WX_Report>(
                                                 dynamic_cast<APRS_WX_Report *>(packet.release()));
                                         weatherAggregator[wx->mName] = std::move(wx);
@@ -220,7 +239,8 @@ int main(int argc, char **argv) {
                                 }
                             }
                         } else {
-                            if (!weatherAggregator.empty() && influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
+                            if (influxRepeats && !weatherAggregator.empty() && influxHost.has_value() &&
+                                influxPort.has_value() && influxDb.has_value())
                                 weatherAggregator.pushToInflux(influxHost.value(), influxTls,
                                                                influxPort.value(), influxDb.value());
                         }
