@@ -176,6 +176,8 @@ namespace aprs {
 
     class APRS_WX_Report : public APRS_Position {
     public:
+        virtual ~APRS_WX_Report() = default;
+
         std::string mDateTime{};
         std::array<std::optional<double>,WeatherItemCount> mWeatherValue;
 
