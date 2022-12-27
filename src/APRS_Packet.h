@@ -66,8 +66,8 @@ namespace aprs {
 
     enum class PacketStatus {
         None,
-        AprsPacket,
-        PositionPacket,
+        AprsPacket [[maybe_unused]],
+        PositionPacket [[maybe_unused]],
         WxPacket,
         DecodingError,
         ErrorLatitude,
@@ -125,12 +125,12 @@ namespace aprs {
     enum class Units {
         Degrees,
         MPH,
-        KPH,
-        mPs,
+        KPH [[maybe_unused]],
+        mPs [[maybe_unused]],
         Fahrenheit,
         Celsius,
         inch_100,
-        mm,
+        mm [[maybe_unused]],
         Percent,
         hPa,
         wPSqm
@@ -169,7 +169,7 @@ namespace aprs {
 
     class WeatherValueError : public std::runtime_error {
     public:
-        explicit WeatherValueError(const std::string& what_arg) : std::runtime_error(what_arg) {}
+        [[maybe_unused]] explicit WeatherValueError(const std::string& what_arg) : std::runtime_error(what_arg) {}
     };
 
     class APRS_IS;
