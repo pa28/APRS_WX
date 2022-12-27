@@ -21,7 +21,7 @@ using namespace sockets;
 
 static std::atomic_bool run{true};
 
-void usage(const std::string &app) {
+[[maybe_unused]] void usage(const std::string &app) {
     cout << "Usage: " << app
          << " --call <callsign> --pass <passcode> --lat <decimal degrees> -lon <decimal degrees --radius <km>\n";
     exit(0);
@@ -108,7 +108,6 @@ int main(int argc, char **argv) {
                     case ConfigItem::Passcode:
                         passCode = ConfigFile::parseText(data, ConfigFile::isdigit);
                         validValue = passCode.has_value();
-                        break;
                         break;
                     case ConfigItem::Latitude:
                         qthLatitude = configFile.safeConvert<double>(data);
