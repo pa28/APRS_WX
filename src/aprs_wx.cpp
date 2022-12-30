@@ -83,9 +83,9 @@ int main(int argc, char **argv) {
         std::optional<double> qthLongitude{};
         std::optional<long> filterRadius{};
 
-        bool influxTls{false};
-        bool influxRepeats{false};
-        unsigned long serverCycleRate{100};
+        std::optional<bool> influxTls{false};
+        std::optional<bool> influxRepeats{false};
+        std::optional<unsigned long> serverCycleRate{100};
         std::optional<std::string> influxHost{};
         std::optional<unsigned> influxPort{};
         std::optional<std::string> influxDb{};
@@ -127,12 +127,9 @@ int main(int argc, char **argv) {
                         filterRadius = configFile.safeConvert<long>(data);
                         validValue = filterRadius.has_value();
                         break;
-                    case ConfigItem::InfluxTLS: {
-                        std::optional<long> value = configFile.safeConvert<long>(data);
-                        validValue = value.has_value();
-                        if (validValue)
-                            influxTls = value.value() != 0;
-                    }
+                    case ConfigItem::InfluxTLS:
+                        influxTls = ConfigFile::parseBoolean(data);
+                        validValue = influxTls.has_value();
                         break;
                     case ConfigItem::InfluxHost:
                         influxHost = ConfigFile::parseText(data, [](char c) {
@@ -150,19 +147,13 @@ int main(int argc, char **argv) {
                         });
                         validValue = influxDb.has_value();
                         break;
-                    case ConfigItem::InfluxRepeats: {
-                        std::optional<long> value = configFile.safeConvert<long>(data);
-                        validValue = value.has_value();
-                        if (validValue)
-                            influxRepeats = value.value() != 0;
-                    }
+                    case ConfigItem::InfluxRepeats:
+                        influxRepeats = ConfigFile::parseBoolean(data);
+                        validValue = influxRepeats.has_value();
                         break;
-                    case ConfigItem::ServerCycleRate: {
-                        std::optional<long> value = configFile.safeConvert<long>(data);
-                        validValue = value.has_value();
-                        if (validValue && value.value() >= 0)
-                            serverCycleRate = static_cast<unsigned long>(value.value());
-                    }
+                    case ConfigItem::ServerCycleRate:
+                        serverCycleRate = configFile.safeConvert<unsigned long>(data);
+                        validValue = serverCycleRate.has_value();
                         break;
                 }
                 validFile = validFile & validValue;
@@ -211,7 +202,7 @@ int main(int argc, char **argv) {
             unsigned long packetCount = 0;
 
             if (sock.openConnection()) {
-                while (packetCount < serverCycleRate) {
+                while (packetCount < serverCycleRate.value()) {
                     sock.getPacket();
 
                     if (!sock.mPacket.empty()) {
@@ -227,7 +218,7 @@ int main(int argc, char **argv) {
                                         weatherAggregator[wx->mName] = std::move(wx);
                                         weatherAggregator.aggregateData();
                                         if (influxHost.has_value() && influxPort.has_value() && influxDb.has_value())
-                                            weatherAggregator.pushToInflux(influxHost.value(), influxTls,
+                                            weatherAggregator.pushToInflux(influxHost.value(), influxTls.value(),
                                                                            influxPort.value(), influxDb.value());
                                     }
                                         break;
@@ -239,9 +230,9 @@ int main(int argc, char **argv) {
                                 }
                             }
                         } else {
-                            if (influxRepeats && !weatherAggregator.empty() && influxHost.has_value() &&
+                            if (influxRepeats.value() && !weatherAggregator.empty() && influxHost.has_value() &&
                                 influxPort.has_value() && influxDb.has_value())
-                                weatherAggregator.pushToInflux(influxHost.value(), influxTls,
+                                weatherAggregator.pushToInflux(influxHost.value(), influxTls.value(),
                                                                influxPort.value(), influxDb.value());
                         }
                     } else {
