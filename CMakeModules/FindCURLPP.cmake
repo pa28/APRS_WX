@@ -9,7 +9,7 @@ set(CURLPP_INCLUDE_PREFIX "curlpp/")
 #~ set(CURLPP_INCLUDE_SEARCHES "Easy.hpp" "cURLpp.hpp" "Info.hpp" "Infos.hpp" "Option.hpp" "Options.hpp" "Form.hpp")
 set(CURLPP_INCLUDE_SEARCHES "cURLpp.hpp")
 
-
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" "${CMAKE_MODULE_PATH}")
 find_path(CURLPP_INCLUDE_DIR NAMES ${CURLPP_INCLUDE_SEARCHES} PATH_SUFFIXES ${CURLPP_INCLUDE_PREFIX})
 find_library(CURLPP_LIBRARY NAMES ${CURLPP_FIND_NAMES} PATHS "/usr/local/lib")
 

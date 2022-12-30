@@ -1,0 +1,3 @@
+[submodule "util"]
+	path = util
+	url = git@github.com:pa28/ve3ysh_utilities.git
