@@ -1,0 +1,10 @@
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/install/strip.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/install.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/install/local.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/rebuild_cache.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/edit_cache.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/list_install_components.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/package_source.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/package.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/SYS_MONITOR.dir
+/home/richard/Projects/APRS_WX/cmake-build/CMakeFiles/APRS_WX.dir

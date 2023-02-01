@@ -1,0 +1,6 @@
+#!/bin/bash
+systemctl daemon-reload
+chown daemon:daemon /usr/local/share/APRS_WX/config.txt
+if systemctl is-enabled aprs_wx.service > /dev/null; then
+    systemctl restart aprs_wx.service
+fi

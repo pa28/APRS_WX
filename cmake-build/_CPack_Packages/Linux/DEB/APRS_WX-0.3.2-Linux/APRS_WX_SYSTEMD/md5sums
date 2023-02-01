@@ -1,0 +1,4 @@
+3c333bfdc819d8b2a065d58fb0584f41  etc/systemd/system/aprs_wx.service
+e5c730e709fc3aa3087af162acc9f9ba  usr/local/share/APRS_WX/config.txt
+e5c730e709fc3aa3087af162acc9f9ba  usr/local/share/APRS_WX/config.pkg
+e96840a23fcfcc5831fa3459b62d9a53  usr/local/bin/APRS_WX

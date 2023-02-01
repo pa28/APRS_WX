@@ -1,0 +1,10 @@
+Architecture: armhf
+Depends: libc6 (>= 2.4), libcurl4 (>= 7.16.2), libgcc-s1 (>= 3.5), libstdc++6 (>= 9)
+Description: Push computer operating statistics to an influxDB.
+Maintainer: Richard Buckley
+Package: sys_monitor
+Priority: optional
+Section: hamradio
+Version: 0.3.2
+Installed-Size: 177
+

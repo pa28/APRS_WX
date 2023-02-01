@@ -1,0 +1,1 @@
+/usr/bin/c++ -O3 -DNDEBUG CMakeFiles/SYS_MONITOR.dir/src/sys_monitor.cpp.o CMakeFiles/SYS_MONITOR.dir/util/XDG/XDGFilePaths.cpp.o CMakeFiles/SYS_MONITOR.dir/util/Config/ConfigFile.cpp.o -o SYS_MONITOR  -lstdc++fs /usr/lib/arm-linux-gnueabihf/libcurl.so /usr/lib/arm-linux-gnueabihf/libcurlpp.a 

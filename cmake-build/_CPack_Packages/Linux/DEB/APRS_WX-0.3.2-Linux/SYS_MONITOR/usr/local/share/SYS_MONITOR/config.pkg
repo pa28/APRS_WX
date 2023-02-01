@@ -1,0 +1,19 @@
+#
+# Configuration file for computer monitor
+#
+# InfluxDB parameters
+#
+# To use https set this to 1
+influxTLS 0
+# The database server host name, assumes influx is an alias for the database server.
+influxHost influx
+# The database connection port
+influxPort 8086
+# The database name to store measurements.
+influxDb computers
+#
+# Sensor specifications
+# For Raspberry Pi
+cpuZone 0
+# For Intel/Arm
+#cpuZone 2
