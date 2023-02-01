@@ -1,4 +1,0 @@
-/usr/local/bin/SYS_MONITOR
-/usr/local/share/SYS_MONITOR/config.txt
-/usr/local/share/SYS_MONITOR/config.pkg
-/etc/systemd/system/sys_monitor.service

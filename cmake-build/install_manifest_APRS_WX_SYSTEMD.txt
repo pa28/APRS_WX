@@ -1,4 +1,0 @@
-/usr/local/bin/APRS_WX
-/usr/local/share/APRS_WX/config.txt
-/usr/local/share/APRS_WX/config.pkg
-/etc/systemd/system/aprs_wx.service

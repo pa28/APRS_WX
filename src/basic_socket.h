@@ -397,8 +397,8 @@ namespace sockets {
             struct timeval timeout{};
 
             std::chrono::seconds const sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
-            timeout.tv_sec = sec.count();
-            timeout.tv_usec = std::chrono::duration_cast<std::chrono::microseconds>(duration - sec).count();
+            timeout.tv_sec = static_cast<unsigned>(sec.count());
+            timeout.tv_usec = static_cast<long>(std::chrono::duration_cast<std::chrono::microseconds>(duration - sec).count());
             return select(&timeout, maxWait);
         }
 

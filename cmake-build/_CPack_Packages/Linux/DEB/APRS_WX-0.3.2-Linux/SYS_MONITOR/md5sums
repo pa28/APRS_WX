@@ -1,4 +1,0 @@
-b62245bc03236c481a3eb51b8bd105a1  etc/systemd/system/sys_monitor.service
-6ecacc7f3827590ab094b63b1313063b  usr/local/share/SYS_MONITOR/config.txt
-6ecacc7f3827590ab094b63b1313063b  usr/local/share/SYS_MONITOR/config.pkg
-8701deccec259dcf059a2ecb858365fc  usr/local/bin/SYS_MONITOR
