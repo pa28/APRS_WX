@@ -237,7 +237,7 @@ int main(int argc, char **argv) {
                         }
                     } else {
                         std::cerr << "*** Empty packet.\n";
-                        return 1;
+                        packetCount = serverCycleRate.value();
                     }
                 }
             }

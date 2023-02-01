@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.16)
 
-project(APRS_WX VERSION 0.3.1.0)
+project(APRS_WX VERSION 0.3.2.0)
 set(PACKAGE_CONTACT "Richard Buckley <richard.buckley@ieee.org>")
 include(GNUInstallDirs)
 
@@ -8,7 +8,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/CMakeModules" "${CMAKE_MODULE_PATH}")
 find_package(CURLPP REQUIRED)
-include_directories(${CURLPP_INCLUDE_DIR} util util/Config util/XDG)
+include_directories(${CURLPP_INCLUDE_DIR} util util/Config util/XDG util/File)
 
 set(DAEMON_USER "daemon")
 set(DAEMON_GROUP "daemon")

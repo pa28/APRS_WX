@@ -241,6 +241,7 @@ namespace sockets {
     class local_socket : public basic_socket {
     protected:
         bool mNoDelay{false};
+        ::uint32_t mWaitTime{0};
 
     public:
         local_socket(int fd, struct sockaddr *addr, socklen_t addr_len) : basic_socket(fd, addr, addr_len) {}
@@ -392,13 +393,13 @@ namespace sockets {
          * @return the value returned from ::select()
          */
         template <typename Duration>
-        int select(Duration &&duration) {
+        int select(Duration &&duration, size_t maxWait = 0) {
             struct timeval timeout{};
 
             std::chrono::seconds const sec = std::chrono::duration_cast<std::chrono::seconds>(duration);
             timeout.tv_sec = sec.count();
             timeout.tv_usec = std::chrono::duration_cast<std::chrono::microseconds>(duration - sec).count();
-            return select(&timeout);
+            return select(&timeout, maxWait);
         }
 
         /**
@@ -407,7 +408,7 @@ namespace sockets {
          * @param timeout A timeout value in a timeval struct or nullptr for no timeout
          * @return the value returned from ::select()
          */
-        int select(struct timeval *timeout = nullptr) {
+        int select(timeval *timeout = nullptr, size_t maxWait = 0) {
             fd_set rd_set{};
 
             if (socket_type != SocketType::SockListen && socket_type != SocketType::SockConnect) {
@@ -418,7 +419,12 @@ namespace sockets {
             FD_SET( sock_fd, &rd_set );
             int n = sock_fd + 1;
 
-            return ::select(n, &rd_set, nullptr, nullptr, timeout);
+            auto r = ::select(n, &rd_set, nullptr, nullptr, timeout);
+            if (r == 0) {
+                if (maxWait > 0 && ++mWaitTime > maxWait)
+                    return -2;
+            }
+            return r;
         }
 
 

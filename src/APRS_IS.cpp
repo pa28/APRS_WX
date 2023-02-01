@@ -24,7 +24,10 @@ namespace aprs {
         char buf[2];
         bool endOfLine = false;
         while (!endOfLine) {
-            if (auto n = select(std::chrono::seconds(1)); n > 0) {
+            if (auto n = select(std::chrono::seconds(1), 60); n > 0) {
+                if (mWaitTime) {
+                    mWaitTime = 0;
+                }
                 switch (read(fd(), buf, 1)) {
                     case -1:
                         exit(1);
